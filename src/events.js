@@ -88,7 +88,9 @@ export function buildEvents(gladys, user, region, holidays, fromDate, toDate, ca
   }
   const events = [];
   for (const { h, externalId, groups } of kept.values()) {
-    const types = groups.map(typeName).join(', ');
+    // A calendar of the school type itself (BE-FR, CH-ZH-VS) needs no "For:".
+    const others = groups.filter((g) => g !== region.code);
+    const types = others.map(typeName).join(', ');
     const notes = [
       pick(h.comments, apiLang),
       h.halfDay ? t('halfDay', lang) : '',
@@ -102,11 +104,18 @@ export function buildEvents(gladys, user, region, holidays, fromDate, toDate, ca
       start: h.start,
       end: addDays(h.end, 1),
       full_day: true,
-      description: cut([notes, t('eventSource', lang)].filter(Boolean).join('\n'), 1000),
+      // The ODbL attribution is never cut: the notes are.
+      description: describe(notes, t('eventSource', lang)),
       url: SOURCE_URL,
     });
   }
   return events;
+}
+
+/** Notes then the source line, 1000 characters at most: only the notes are cut. */
+export function describe(notes, source) {
+  if (!notes) return source;
+  return `${cut(notes, 1000 - source.length - 1)}\n${source}`;
 }
 
 /** The status message of the problems (bounded, both languages). */

@@ -69,7 +69,8 @@ There is no device: the calendar is enough.
   calendar. Answers are limited to 1 MB (2 MB for the lists of regions) and
   20 s.
 - **Writes to Gladys**: 25 a minute at most (Gladys accepts 30); nothing is
-  resent when nothing changed.
+  resent when nothing changed. 200 users at most (beyond, said in the
+  status).
 - **The past is kept**: only the current window (from the 1st of the month,
   13 months) is replaced; past holidays stay in the calendar.
 - **Calendar not synced** (**Sync** toggle off): it receives nothing more;

@@ -358,5 +358,53 @@
     "file": "src/events.js",
     "from": "types ? t('schoolTypes', lang, { types }) : '',",
     "to": "'',"
+  },
+  {
+    "name": "ODbL line never cut",
+    "file": "src/events.js",
+    "from": "  return `${cut(notes, 1000 - source.length - 1)}\\n${source}`;",
+    "to": "  return cut(`${notes}\\n${source}`, 1000);"
+  },
+  {
+    "name": "no For: for the group itself",
+    "file": "src/events.js",
+    "from": "const others = groups.filter((g) => g !== region.code);",
+    "to": "const others = groups;"
+  },
+  {
+    "name": "users beyond the maximum said",
+    "file": "src/app.js",
+    "from": "    if (this.overUsers)",
+    "to": "    if (false)"
+  },
+  {
+    "name": "too many: not updated when read before",
+    "file": "src/app.js",
+    "from": "key: entry ? 'problemTooManyKept' : 'problemTooMany',",
+    "to": "key: 'problemTooMany',"
+  },
+  {
+    "name": "empty kept: window boundary",
+    "file": "src/app.js",
+    "from": "const had = prev?.items?.some((h) => h.end >= fromDate);",
+    "to": "const had = prev?.items?.some((h) => h.end > fromDate);"
+  },
+  {
+    "name": "500 holidays taken",
+    "file": "src/openholidays.js",
+    "from": "  if (data.length > MAX_HOLIDAYS_PER_REGION) {",
+    "to": "  if (data.length >= MAX_HOLIDAYS_PER_REGION) {"
+  },
+  {
+    "name": "/data groups checked",
+    "file": "src/app.js",
+    "from": "(Array.isArray(h.groups) && h.groups.every((g) => typeof g === 'string' && CODE.test(g))));",
+    "to": "true);"
+  },
+  {
+    "name": "groups bounded to 20",
+    "file": "src/openholidays.js",
+    "from": "  for (const entry of list.slice(0, 20)) {\n    const code",
+    "to": "  for (const entry of list) {\n    const code"
   }
 ]

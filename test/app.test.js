@@ -847,3 +847,85 @@ test('a user without language: the English names', async (t) => {
   assert.equal(fake.calendars[0].name, 'School holidays – Bavaria');
   assert.ok(fake.calendarEvents.some((e) => e.name === 'Christmas Holidays'));
 });
+
+test('an empty answer: kept only when a holiday of the window was there', async (t) => {
+  for (const [end, kept] of [
+    ['2026-11-01', true],
+    ['2026-10-31', false],
+  ]) {
+    const store = createMemoryStore({
+      holidays: {
+        'DE|DE-BY': {
+          fetchedAt: Date.parse('2026-11-12T09:00:00Z'),
+          fromDate: '2026-11-01',
+          toDate: '2027-12-01',
+          items: [{ id: 'x', start: '2026-10-26', end, names: { DE: 'Herbstferien' } }],
+        },
+      },
+    });
+    const net = createNet();
+    net.override = (url) => (url.includes('SchoolHolidays') ? json([]) : undefined);
+    const { app, fake } = await setup({ store, net });
+    t.after(() => app.stop());
+    assert.equal(net.count('SchoolHolidays'), 1);
+    assert.equal(/previous ones are kept/.test(fake.connectionStatus.message.en), kept, end);
+    assert.equal(store.data.holidays['DE|DE-BY'].items.length, kept ? 1 : 0, end);
+    await app.stop();
+  }
+});
+
+test('/data groups read back: checked, the entry dropped when foreign', async (t) => {
+  const fetchedAt = Date.parse('2026-11-14T09:00:00Z');
+  const item = (id, groups) => ({
+    id,
+    start: '2026-12-24',
+    end: '2027-01-08',
+    names: { DE: id },
+    groups,
+  });
+  const store = createMemoryStore({
+    holidays: {
+      'DE|DE-BY': {
+        fetchedAt,
+        fromDate: '2026-11-01',
+        toDate: '2027-12-01',
+        items: [item('good', ['DE-MV-ABS']), item('bad', ['../x']), item('worse', 'DE-MV')],
+      },
+    },
+  });
+  const { app, fake } = await setup({ store });
+  t.after(() => app.stop());
+  assert.deepEqual(
+    fake.calendarEvents.map((e) => e.name),
+    ['good'],
+  );
+});
+
+test('more than 200 enabled users: the status says how many are not synced', async (t) => {
+  const accounts = Array.from({ length: 202 }, (_, i) => account(`u${i}`, { country: '' }));
+  const { app, fake } = await setup({ accounts });
+  t.after(() => app.stop());
+  assert.match(fake.connectionStatus.message.en, /200 users at most: 2 more not synced/);
+  assert.match(fake.connectionStatus.message.en, /^200 user\(s\)/);
+});
+
+test('too many holidays after a good read: "not updated", the old events stay', async (t) => {
+  const net = createNet();
+  const { app, fake, clock } = await setup({ net });
+  t.after(() => app.stop());
+  const events = fake.calendarEvents.length;
+  const many = Array.from({ length: 501 }, (_, i) => ({
+    id: `h${i}`,
+    startDate: '2027-01-01',
+    endDate: '2027-01-02',
+    type: 'School',
+    name: [{ language: 'DE', text: 'x' }],
+  }));
+  net.override = (url) => (url.includes('SchoolHolidays') ? json(many) : undefined);
+  await clock.advance(25 * HOUR);
+  assert.match(
+    fake.connectionStatus.message.en,
+    /too many holidays for Bayern, the calendar is not updated/,
+  );
+  assert.equal(fake.calendarEvents.length, events);
+});

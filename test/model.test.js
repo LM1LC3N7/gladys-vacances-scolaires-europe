@@ -413,3 +413,98 @@ test('non-ASCII region codes: Austria and Swiss districts, by code, ISO code and
     ['AT-K'],
   );
 });
+
+test('the ODbL line is never cut: the notes are', () => {
+  const gladys = createFakeGladys({ selector: 'vse' });
+  const groups = Array.from({ length: 20 }, (_, i) => ({
+    code: `CH-ZH-T${String(i).padStart(2, '0')}`,
+    name: [{ language: 'DE', text: `Schultyp ${'x'.repeat(50)} ${i}` }],
+  }));
+  const catalog = parseCatalog('CH', [], groups);
+  const holidays = parseHolidays([
+    {
+      id: 'a',
+      startDate: '2027-03-26',
+      endDate: '2027-03-29',
+      type: 'School',
+      name: [{ language: 'DE', text: 'Ostern' }],
+      comment: [{ language: 'DE', text: 'y'.repeat(300) }],
+      groups: groups.map((g) => ({ code: g.code })),
+    },
+  ]);
+  assert.equal(holidays[0].groups.length, 20, 'the API groups read, 20 at most');
+  const region = { country: 'CH', code: 'CH-ZH', names: { DE: 'Zürich' } };
+  const [event] = buildEvents(
+    gladys,
+    { selector: 'u', language: 'en' },
+    region,
+    holidays,
+    '2026-11-01',
+    '2027-12-01',
+    catalog,
+  );
+  assert.ok(event.description.length <= 1000);
+  assert.ok(
+    event.description.endsWith('\nSource: OpenHolidays API (openholidaysapi.org), ODbL-1.0.'),
+  );
+  assert.match(event.description, /…\n/);
+});
+
+test('the groups of a holiday: 20 at most, codes checked', () => {
+  const [h] = parseHolidays([
+    {
+      id: 'a',
+      startDate: '2027-03-26',
+      endDate: '2027-03-29',
+      type: 'School',
+      name: [{ language: 'DE', text: 'Ostern' }],
+      groups: [
+        { code: 'ch-zh-vs' },
+        { code: 'CH-ZH-VS' },
+        { code: '../x' },
+        ...Array.from({ length: 25 }, (_, i) => ({ code: `CH-G${i}` })),
+      ],
+    },
+  ]);
+  assert.equal(h.groups[0], 'CH-ZH-VS');
+  assert.ok(!h.groups.includes('../x'));
+  assert.equal(h.groups.length, 18, '20 entries read, 2 dropped');
+});
+
+test('no "For:" when the calendar is the school type itself', () => {
+  const gladys = createFakeGladys({ selector: 'vse' });
+  const holidays = parseHolidays([
+    {
+      id: 'a',
+      startDate: '2026-12-21',
+      endDate: '2027-01-01',
+      type: 'School',
+      name: [{ language: 'FR', text: 'Vacances d’hiver' }],
+      groups: [{ code: 'BE-FR' }],
+    },
+  ]);
+  const region = {
+    country: 'BE',
+    code: 'BE-FR',
+    names: { FR: 'Communauté française' },
+    group: true,
+  };
+  const [event] = buildEvents(
+    gladys,
+    { selector: 'u', language: 'fr' },
+    region,
+    holidays,
+    '2026-11-01',
+    '2027-12-01',
+  );
+  assert.equal(event.description, 'Source : API OpenHolidays (openholidaysapi.org), ODbL-1.0.');
+});
+
+test('500 holidays are taken, 501 refused', () => {
+  const list = (n) =>
+    Array.from({ length: n }, (_, i) =>
+      holiday({ id: `h${i}`, startDate: '2027-01-01', endDate: '2027-01-02' }),
+    );
+  assert.equal(parseHolidays(list(500)).length, 500);
+  assert.throws(() => parseHolidays(list(501)), /too many/);
+});

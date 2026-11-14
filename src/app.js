@@ -101,6 +101,8 @@ export class HolidaysApp {
     this.api = new OpenHolidaysClient({ fetch: fetchImpl, now, timers });
     // Regions whose last answer had too many holidays (keys of readAt).
     this.tooMany = new Set();
+    // Enabled users beyond MAX_USERS at the last full pass (said in the status).
+    this.overUsers = 0;
     this.abort = null;
     // /data, as last read or written.
     this.data = { holidays: {}, catalogs: {}, attempts: {} };
@@ -561,6 +563,8 @@ export class HolidaysApp {
     for (const selector of [...this.calendarCount.keys()]) {
       if (!enabled.has(selector)) this.calendarCount.delete(selector);
     }
+    // Beyond MAX_USERS enabled users, the others are not synced: said.
+    this.overUsers = accounts.length > MAX_USERS ? accounts.length - MAX_USERS : 0;
     this.publishStatus(enabled.size);
   }
 
@@ -663,7 +667,11 @@ export class HolidaysApp {
       this.alive(gen);
       const name = regionName(region, user);
       if (this.tooMany.has(`holidays:${region.country}|${region.code}`)) {
-        problems.push({ key: 'problemTooMany', values: { user: user.selector, region: name } });
+        problems.push({
+          // The events of an earlier read stay published: not updated.
+          key: entry ? 'problemTooManyKept' : 'problemTooMany',
+          values: { user: user.selector, region: name },
+        });
       }
       if (entry?.empties) {
         problems.push({ key: 'problemEmpty', values: { user: user.selector, region: name } });
@@ -765,6 +773,8 @@ export class HolidaysApp {
       return;
     }
     const all = [...this.problems.values()].flat();
+    if (this.overUsers)
+      all.unshift({ key: 'problemUsers', values: { max: MAX_USERS, more: this.overUsers } });
     const calendars = [...this.calendarCount.values()].reduce((a, b) => a + b, 0);
     const ok = both('statusOk', { users, calendars });
     if (all.length === 0) {

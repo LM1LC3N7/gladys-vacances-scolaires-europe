@@ -70,7 +70,8 @@ Il n’y a pas d’appareil : le calendrier suffit.
   déjà lues restent dans le calendrier. Réponses limitées à 1 Mo (2 Mo pour
   les listes de régions) et à 20 s.
 - **Écritures dans Gladys** : 25 par minute au plus (Gladys en accepte 30) ;
-  rien n’est renvoyé quand rien n’a changé.
+  rien n’est renvoyé quand rien n’a changé. 200 utilisateurs au plus
+  (au-delà, dit dans le statut).
 - **Passé conservé** : seule la fenêtre en cours (du 1er du mois à 13 mois)
   est remplacée ; les vacances passées restent dans le calendrier.
 - **Calendrier non synchronisé** (bouton **Synchroniser** coupé) : il ne

@@ -55,6 +55,14 @@ export const TEXTS = {
     en: 'user {user}: too many holidays for {region}, not published',
     fr: 'utilisateur {user} : trop de vacances pour {region}, rien publié',
   },
+  problemTooManyKept: {
+    en: 'user {user}: too many holidays for {region}, the calendar is not updated',
+    fr: 'utilisateur {user} : trop de vacances pour {region}, le calendrier n’est pas mis à jour',
+  },
+  problemUsers: {
+    en: '{max} users at most: {more} more not synced',
+    fr: '{max} utilisateurs au plus : {more} de plus non synchronisés',
+  },
   problemEmpty: {
     en: 'user {user}: OpenHolidays gave no holiday for {region}, the previous ones are kept',
     fr: 'utilisateur {user} : OpenHolidays n’a donné aucune vacance pour {region}, les précédentes sont gardées',
