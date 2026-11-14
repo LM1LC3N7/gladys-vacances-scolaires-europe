@@ -1,0 +1,82 @@
+[
+  {
+    "id": "7da2bda5-00b0-4204-a264-98d85bf8cd97",
+    "startDate": "2026-10-19",
+    "endDate": "2026-11-01",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Congé d'automne (Toussaint)" },
+      { "language": "NL", "text": "Herfstvakantie" },
+      { "language": "DE", "text": "Allerheiligenferien" },
+      { "language": "EN", "text": "All Saints Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "groups": [{ "code": "BE-FR", "shortName": "FR" }]
+  },
+  {
+    "id": "4f04cd58-75c6-48b9-a478-cd69cfe70471",
+    "startDate": "2026-12-21",
+    "endDate": "2027-01-03",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Vacances d'hiver (Noël)" },
+      { "language": "NL", "text": "Kerstvakantie" },
+      { "language": "DE", "text": "Winterferien" },
+      { "language": "EN", "text": "Winter Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "groups": [{ "code": "BE-FR", "shortName": "FR" }]
+  },
+  {
+    "id": "d1032b6c-17f5-40d6-9821-b75edc4a200d",
+    "startDate": "2027-02-22",
+    "endDate": "2027-03-07",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Congé de détente (Carnaval)" },
+      { "language": "NL", "text": "Krokusvakantie" },
+      { "language": "DE", "text": "Karnevalsferien" },
+      { "language": "EN", "text": "Carnival Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "groups": [{ "code": "BE-FR", "shortName": "FR" }]
+  },
+  {
+    "id": "11b9d34b-6857-4aac-b7af-04278bb01103",
+    "startDate": "2027-04-26",
+    "endDate": "2027-05-09",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Vacances de printemps (Pâques)" },
+      { "language": "NL", "text": "Paasvakantie" },
+      { "language": "DE", "text": "Frühjahrsferien" },
+      { "language": "EN", "text": "Spring Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "groups": [{ "code": "BE-FR", "shortName": "FR" }]
+  },
+  {
+    "id": "dde6fa26-f916-4785-bf15-341b17029416",
+    "startDate": "2027-07-03",
+    "endDate": "2027-07-03",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Début des vacances d'été" },
+      { "language": "NL", "text": "Begin van de zomervakantie" },
+      { "language": "DE", "text": "Beginn der Sommerferien" },
+      { "language": "EN", "text": "Start of Summer Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "groups": [{ "code": "BE-FR", "shortName": "FR" }]
+  }
+]

@@ -1,67 +1,102 @@
-# Template de démonstration
+# Vacances scolaires Europe
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+Intégration non officielle. Elle ajoute à Gladys les **vacances scolaires de
+votre région** dans plusieurs pays d’Europe (hors France) : Land allemand,
+Bundesland autrichien, canton suisse, communauté belge, région néerlandaise,
+voïvodie polonaise… sous forme de **calendrier**. Les données viennent de
+l’**API OpenHolidays** (<https://www.openholidaysapi.org>), publique, sans
+compte ni clé.
 
-## Ce que vous obtenez
+La France n’est pas proposée : ses vacances scolaires (zones A, B, C) sont
+dans l’intégration **gladys-holidays**.
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+Elle a été essayée avec la vraie API OpenHolidays et une Gladys 5.3 de test
+(calendrier rempli, scènes non essayées) ; signalez toute date fausse.
 
-## Configuration
+## Mise en place
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+1. Installez l’intégration (Gladys 5.3.0 ou plus). Rien à remplir dans son
+   écran de configuration.
+2. Chaque utilisateur qui le souhaite ouvre la page de l’intégration, bloc
+   **« Mes calendriers »**, et l’active :
+   - **Pays** : dans la liste.
+   - **Régions** (jusqu’à 3, séparées par des virgules) : le code
+     (`DE-BY`, `AT-WI` ou `AT-9`, `CH-ZH`, `BE-FR`), le code sans le pays (`BY`) ou le
+     nom dans une langue de l’API (`Bayern`, `Bavaria`, `Zürich`). Les
+     accents et majuscules ne comptent pas. Laissez vide pour un pays sans
+     régions (Luxembourg, Estonie, Lituanie, Andorre, Liechtenstein…).
+3. Un calendrier **« Vacances scolaires – <région> »** apparaît par région,
+   rempli des vacances du 1er du mois en cours jusqu’à 13 mois plus tard.
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+Un nom qui désigne plusieurs régions, ou une région inconnue, ne change rien
+aux calendriers déjà là : le statut de l’intégration (vu par
+l’administrateur) dit quoi corriger. Le bouton **« Lister les régions »**
+(écran de configuration, administrateur) donne les codes et noms d’un pays.
 
-## Actions
+Selon le pays, l’API connaît aussi des groupes : communautés belges
+(`BE-FR`, `BE-NL`, `BE-DE`), régions néerlandaises (`NL-NO`, `NL-MI`,
+`NL-ZU`), types d’école en Mecklembourg (`DE-MV-ABS`, `DE-MV-BBS`), régions
+scolaires suisses. Une région donne aussi les vacances nationales et celles
+de la région au-dessus (une commune hérite de son canton).
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+## Scènes : « aujourd’hui en vacances »
 
-## Scènes
+Un calendrier poussé est **privé** au départ. Pour qu’il serve aux scènes,
+partagez-le (bouton **Partagé** dans « Mes calendriers ») : il est alors
+visible par toute la maison et les scènes le lisent, par exemple :
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+- déclencheur **« Un événement de calendrier arrive »** (veille de la
+  rentrée, premier jour des vacances) ;
+- condition **« Un événement est en cours »** sur ce calendrier : vraie un
+  jour de vacances (pour ne pas lancer le réveil des enfants).
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+Il n’y a pas d’appareil : le calendrier suffit.
 
-## Tableau de bord
+## Ce que fait l’intégration
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+- **Lecture** : une fois par jour au plus par région (une fois par semaine
+  pour les listes de régions), quel que soit le nombre de redémarrages ou de
+  clics. La date de la donnée et de la dernière tentative sont gardées dans
+  `/data`.
+- **Panne de l’API** : toute requête est suspendue 60 s, puis 2 min,
+  4 min… jusqu’à 6 h, en respectant l’en-tête `Retry-After` ; les vacances
+  déjà lues restent dans le calendrier. Réponses limitées à 1 Mo (2 Mo pour
+  les listes de régions) et à 20 s.
+- **Écritures dans Gladys** : 25 par minute au plus (Gladys en accepte 30) ;
+  rien n’est renvoyé quand rien n’a changé.
+- **Passé conservé** : seule la fenêtre en cours (du 1er du mois à 13 mois)
+  est remplacée ; les vacances passées restent dans le calendrier.
+- **Calendrier non synchronisé** (bouton **Synchroniser** coupé) : il ne
+  reçoit plus rien ; rallumé, il est rempli de nouveau.
+- Les jours de « rentrée » et de « fin des cours » de l’API ne sont pas des
+  vacances : ils ne sont pas repris. Une demi-journée est notée dans la
+  description de l’événement. Une même période donnée une fois par type
+  d’école (Zurich : `CH-ZH-VS` Volksschulen, `CH-ZH-MS` Mittelschulen…) avec
+  les mêmes dates n’apparaît qu’une fois ; pour les dates d’un seul type
+  d’école, indiquez son code de groupe.
+- Les vacances sont des événements « journée entière », rangés aux minuits
+  du fuseau de Gladys (fuseaux de UTC-11 à UTC+11).
 
-## Dépannage
+## Pays
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+Proposés : Albanie, Allemagne, Andorre, Autriche, Belgique, Biélorussie,
+Bulgarie, Croatie, Espagne, Estonie, Hongrie, Irlande, Italie, Lettonie,
+Liechtenstein, Lituanie, Luxembourg, Malte, Moldavie, Monaco, Pays-Bas,
+Pologne, Portugal, Roumanie, Saint-Marin, Serbie, Slovaquie, Slovénie,
+Suisse, Tchéquie. Le catalogue de Gladys la montre dans 20 d’entre eux
+(limite du catalogue) ; la recherche la trouve partout.
+
+La couverture dépend de l’API : certains pays publient leur année scolaire
+tard (en novembre 2026, rien encore pour l’Espagne ni l’Italie en 2026-2027).
+Un calendrier vide se remplit dès que l’API a les dates.
+
+## Données et licence
+
+Contient des informations de l’API OpenHolidays
+(<https://www.openholidaysapi.org>), mises à disposition sous la licence
+Open Database License (ODbL-1.0,
+<https://github.com/openpotato/openholidaysapi.data/blob/main/LICENSE>).
+L’intégration appelle l’API et n’embarque aucune de ses données ; le serveur
+de l’API (AGPL-3.0) n’est ni copié ni porté. Chaque calendrier et chaque
+événement citent la source. L’intégration elle-même est sous licence
+Apache-2.0.

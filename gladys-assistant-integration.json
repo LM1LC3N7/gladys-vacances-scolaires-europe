@@ -1,177 +1,551 @@
 {
   "manifest_version": 1,
-  "type": "device",
-  "name": "Demo Devices Template",
+  "type": "calendar",
+  "name": "School holidays Europe",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "School holidays by region (Land, canton, community) in Europe, outside France.",
+    "fr": "Vacances scolaires par région (Land, canton, communauté) en Europe, hors France."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
-  "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/lm1lc3n7/gladys-vacances-scolaires-europe:0.1.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/LM1LC3N7/gladys-vacances-scolaires-europe/main/cover.png",
+  "categories": ["services"],
+  "countries": [
+    "AD",
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "HR",
+    "HU",
+    "IE",
+    "IT",
+    "LI",
+    "LU",
+    "MC",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SI",
+    "SK"
+  ],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "How it works",
+        "fr": "Fonctionnement"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Each user enables the integration in \"My calendars\" below and chooses a country and up to 3 regions: one calendar per region, filled with its school holidays (13 months ahead, read once a day from the public OpenHolidays API, no account, no key). France is not offered (see gladys-holidays). The \"List the regions\" button gives the codes of a country. Data: OpenHolidays API, Open Database License (ODbL-1.0).",
+        "fr": "Chaque utilisateur active l'intégration dans « Mes calendriers » ci-dessous et choisit un pays et jusqu'à 3 régions : un calendrier par région, rempli de ses vacances scolaires (13 mois à l'avance, lues une fois par jour sur l'API publique OpenHolidays, sans compte ni clé). La France n'est pas proposée (voir gladys-holidays). Le bouton « Lister les régions » donne les codes d'un pays. Données : API OpenHolidays, licence Open Database License (ODbL-1.0)."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://www.openholidaysapi.org",
+          "label": {
+            "en": "OpenHolidays API",
+            "fr": "API OpenHolidays"
+          }
+        },
+        {
+          "url": "https://github.com/openpotato/openholidaysapi.data/blob/main/LICENSE",
+          "label": {
+            "en": "Data licence (ODbL-1.0)",
+            "fr": "Licence des données (ODbL-1.0)"
+          }
+        }
+      ]
+    }
+  ],
+  "account_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Your school holidays",
+        "fr": "Vos vacances scolaires"
+      },
+      "description": {
+        "en": "Choose the country, then the region(s) of the school: code (DE-BY, CH-ZH, BE-FR), code without the country (BY) or name (Bayern, Zürich). Leave the regions empty for a country without regions (Luxembourg, Estonia...). A calendar is private at first: share it to see it in the household and use it in scenes (\"an event is running\").",
+        "fr": "Choisissez le pays, puis la ou les régions de l'école : code (DE-BY, CH-ZH, BE-FR), code sans le pays (BY) ou nom (Bayern, Zürich). Laissez les régions vides pour un pays sans région (Luxembourg, Estonie...). Un calendrier est d'abord privé : partagez-le pour le voir dans la maison et l'utiliser dans les scènes (« un événement est en cours »)."
+      }
+    },
+    {
+      "key": "country",
+      "type": "select",
+      "label": {
+        "en": "Country",
+        "fr": "Pays"
+      },
+      "required": true,
+      "options": [
+        {
+          "value": "AD",
+          "label": {
+            "en": "Andorra",
+            "fr": "Andorre"
+          }
+        },
+        {
+          "value": "AL",
+          "label": {
+            "en": "Albania",
+            "fr": "Albanie"
+          }
+        },
+        {
+          "value": "AT",
+          "label": {
+            "en": "Austria",
+            "fr": "Autriche"
+          }
+        },
+        {
+          "value": "BE",
+          "label": {
+            "en": "Belgium",
+            "fr": "Belgique"
+          }
+        },
+        {
+          "value": "BG",
+          "label": {
+            "en": "Bulgaria",
+            "fr": "Bulgarie"
+          }
+        },
+        {
+          "value": "BY",
+          "label": {
+            "en": "Belarus",
+            "fr": "Biélorussie"
+          }
+        },
+        {
+          "value": "CH",
+          "label": {
+            "en": "Switzerland",
+            "fr": "Suisse"
+          }
+        },
+        {
+          "value": "CZ",
+          "label": {
+            "en": "Czechia",
+            "fr": "Tchéquie"
+          }
+        },
+        {
+          "value": "DE",
+          "label": {
+            "en": "Germany",
+            "fr": "Allemagne"
+          }
+        },
+        {
+          "value": "EE",
+          "label": {
+            "en": "Estonia",
+            "fr": "Estonie"
+          }
+        },
+        {
+          "value": "ES",
+          "label": {
+            "en": "Spain",
+            "fr": "Espagne"
+          }
+        },
+        {
+          "value": "HR",
+          "label": {
+            "en": "Croatia",
+            "fr": "Croatie"
+          }
+        },
+        {
+          "value": "HU",
+          "label": {
+            "en": "Hungary",
+            "fr": "Hongrie"
+          }
+        },
+        {
+          "value": "IE",
+          "label": {
+            "en": "Ireland",
+            "fr": "Irlande"
+          }
+        },
+        {
+          "value": "IT",
+          "label": {
+            "en": "Italy",
+            "fr": "Italie"
+          }
+        },
+        {
+          "value": "LI",
+          "label": {
+            "en": "Liechtenstein",
+            "fr": "Liechtenstein"
+          }
+        },
+        {
+          "value": "LT",
+          "label": {
+            "en": "Lithuania",
+            "fr": "Lituanie"
+          }
+        },
+        {
+          "value": "LU",
+          "label": {
+            "en": "Luxembourg",
+            "fr": "Luxembourg"
+          }
+        },
+        {
+          "value": "LV",
+          "label": {
+            "en": "Latvia",
+            "fr": "Lettonie"
+          }
+        },
+        {
+          "value": "MC",
+          "label": {
+            "en": "Monaco",
+            "fr": "Monaco"
+          }
+        },
+        {
+          "value": "MD",
+          "label": {
+            "en": "Moldova",
+            "fr": "Moldavie"
+          }
+        },
+        {
+          "value": "MT",
+          "label": {
+            "en": "Malta",
+            "fr": "Malte"
+          }
+        },
+        {
+          "value": "NL",
+          "label": {
+            "en": "Netherlands",
+            "fr": "Pays-Bas"
+          }
+        },
+        {
+          "value": "PL",
+          "label": {
+            "en": "Poland",
+            "fr": "Pologne"
+          }
+        },
+        {
+          "value": "PT",
+          "label": {
+            "en": "Portugal",
+            "fr": "Portugal"
+          }
+        },
+        {
+          "value": "RO",
+          "label": {
+            "en": "Romania",
+            "fr": "Roumanie"
+          }
+        },
+        {
+          "value": "RS",
+          "label": {
+            "en": "Serbia",
+            "fr": "Serbie"
+          }
+        },
+        {
+          "value": "SI",
+          "label": {
+            "en": "Slovenia",
+            "fr": "Slovénie"
+          }
+        },
+        {
+          "value": "SK",
+          "label": {
+            "en": "Slovakia",
+            "fr": "Slovaquie"
+          }
+        },
+        {
+          "value": "SM",
+          "label": {
+            "en": "San Marino",
+            "fr": "Saint-Marin"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "regions",
+      "type": "string",
+      "label": {
+        "en": "Regions",
+        "fr": "Régions"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
       "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+        "en": "Up to 3, separated by commas.",
+        "fr": "Jusqu'à 3, séparées par des virgules."
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
-    },
-    {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
-      "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
-      },
-      "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "placeholder": {
+        "en": "e.g. DE-BY or Bayern",
+        "fr": "ex. DE-BY ou Bayern"
+      }
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
-    }
-  ],
-  "scene_triggers": [
-    {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
-      "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+      "key": "list_regions",
+      "label": {
+        "en": "List the regions",
+        "fr": "Lister les régions"
       },
+      "timeout_seconds": 45,
       "fields": [
         {
-          "key": "device",
+          "key": "country",
           "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "label": {
+            "en": "Country",
+            "fr": "Pays"
+          },
+          "required": true,
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "AD",
+              "label": {
+                "en": "Andorra",
+                "fr": "Andorre"
+              }
+            },
+            {
+              "value": "AL",
+              "label": {
+                "en": "Albania",
+                "fr": "Albanie"
+              }
+            },
+            {
+              "value": "AT",
+              "label": {
+                "en": "Austria",
+                "fr": "Autriche"
+              }
+            },
+            {
+              "value": "BE",
+              "label": {
+                "en": "Belgium",
+                "fr": "Belgique"
+              }
+            },
+            {
+              "value": "BG",
+              "label": {
+                "en": "Bulgaria",
+                "fr": "Bulgarie"
+              }
+            },
+            {
+              "value": "BY",
+              "label": {
+                "en": "Belarus",
+                "fr": "Biélorussie"
+              }
+            },
+            {
+              "value": "CH",
+              "label": {
+                "en": "Switzerland",
+                "fr": "Suisse"
+              }
+            },
+            {
+              "value": "CZ",
+              "label": {
+                "en": "Czechia",
+                "fr": "Tchéquie"
+              }
+            },
+            {
+              "value": "DE",
+              "label": {
+                "en": "Germany",
+                "fr": "Allemagne"
+              }
+            },
+            {
+              "value": "EE",
+              "label": {
+                "en": "Estonia",
+                "fr": "Estonie"
+              }
+            },
+            {
+              "value": "ES",
+              "label": {
+                "en": "Spain",
+                "fr": "Espagne"
+              }
+            },
+            {
+              "value": "HR",
+              "label": {
+                "en": "Croatia",
+                "fr": "Croatie"
+              }
+            },
+            {
+              "value": "HU",
+              "label": {
+                "en": "Hungary",
+                "fr": "Hongrie"
+              }
+            },
+            {
+              "value": "IE",
+              "label": {
+                "en": "Ireland",
+                "fr": "Irlande"
+              }
+            },
+            {
+              "value": "IT",
+              "label": {
+                "en": "Italy",
+                "fr": "Italie"
+              }
+            },
+            {
+              "value": "LI",
+              "label": {
+                "en": "Liechtenstein",
+                "fr": "Liechtenstein"
+              }
+            },
+            {
+              "value": "LT",
+              "label": {
+                "en": "Lithuania",
+                "fr": "Lituanie"
+              }
+            },
+            {
+              "value": "LU",
+              "label": {
+                "en": "Luxembourg",
+                "fr": "Luxembourg"
+              }
+            },
+            {
+              "value": "LV",
+              "label": {
+                "en": "Latvia",
+                "fr": "Lettonie"
+              }
+            },
+            {
+              "value": "MC",
+              "label": {
+                "en": "Monaco",
+                "fr": "Monaco"
+              }
+            },
+            {
+              "value": "MD",
+              "label": {
+                "en": "Moldova",
+                "fr": "Moldavie"
+              }
+            },
+            {
+              "value": "MT",
+              "label": {
+                "en": "Malta",
+                "fr": "Malte"
+              }
+            },
+            {
+              "value": "NL",
+              "label": {
+                "en": "Netherlands",
+                "fr": "Pays-Bas"
+              }
+            },
+            {
+              "value": "PL",
+              "label": {
+                "en": "Poland",
+                "fr": "Pologne"
+              }
+            },
+            {
+              "value": "PT",
+              "label": {
+                "en": "Portugal",
+                "fr": "Portugal"
+              }
+            },
+            {
+              "value": "RO",
+              "label": {
+                "en": "Romania",
+                "fr": "Roumanie"
+              }
+            },
+            {
+              "value": "RS",
+              "label": {
+                "en": "Serbia",
+                "fr": "Serbie"
+              }
+            },
+            {
+              "value": "SI",
+              "label": {
+                "en": "Slovenia",
+                "fr": "Slovénie"
+              }
+            },
+            {
+              "value": "SK",
+              "label": {
+                "en": "Slovakia",
+                "fr": "Slovaquie"
+              }
+            },
+            {
+              "value": "SM",
+              "label": {
+                "en": "San Marino",
+                "fr": "Saint-Marin"
+              }
+            }
           ]
         }
-      ],
-      "variables": [
-        {
-          "key": "target",
-          "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
-        }
       ]
-    }
-  ],
-  "scene_actions": [
-    {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
-      },
-      "timeout_seconds": 15,
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ],
-      "outputs": [
-        {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
-        }
-      ]
-    }
-  ],
-  "widgets": [
-    {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
-      },
-      "icon": "activity",
-      "action_timeout_seconds": 15
     }
   ]
 }

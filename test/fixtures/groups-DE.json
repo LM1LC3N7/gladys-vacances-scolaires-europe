@@ -1,0 +1,28 @@
+[
+  {
+    "code": "DE-MV-ABS",
+    "shortName": "MV-ABS",
+    "category": [
+      { "language": "DE", "text": "Schulart" },
+      { "language": "EN", "text": "school type" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Allgemeinbildende Schulen" },
+      { "language": "EN", "text": "General Schools" }
+    ],
+    "subdivisions": [{ "code": "DE-MV", "shortName": "MV" }]
+  },
+  {
+    "code": "DE-MV-BBS",
+    "shortName": "MV-BBS",
+    "category": [
+      { "language": "DE", "text": "Schulart" },
+      { "language": "EN", "text": "school type" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Berufliche Schulen" },
+      { "language": "EN", "text": "Vocational Schools" }
+    ],
+    "subdivisions": [{ "code": "DE-MV", "shortName": "MV" }]
+  }
+]

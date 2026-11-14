@@ -1,0 +1,242 @@
+[
+  {
+    "name": "holidays fresh for a day",
+    "file": "src/app.js",
+    "from": "const fresh = entry && age >= 0 && age < ttl && sameWindow;",
+    "to": "const fresh = entry && age >= 0 && age < 0 && sameWindow;"
+  },
+  {
+    "name": "future date of /data trusted",
+    "file": "src/app.js",
+    "from": "const fresh = entry && age >= 0 && age < ttl && sameWindow;",
+    "to": "const fresh = entry && age < ttl && sameWindow;"
+  },
+  {
+    "name": "monotonic read guard",
+    "file": "src/app.js",
+    "from": "if (lastRead !== undefined && this.mono() - lastRead < ttl && sameWindow) return entry;",
+    "to": "if (false) return entry;"
+  },
+  {
+    "name": "no request while paused",
+    "file": "src/app.js",
+    "from": "    if (this.paused()) return entry;\n",
+    "to": "    \n"
+  },
+  {
+    "name": "attempt gap after a restart",
+    "file": "src/app.js",
+    "from": "nowWall - attempt < ATTEMPT_GAP",
+    "to": "false"
+  },
+  {
+    "name": "pause doubled",
+    "file": "src/app.js",
+    "from": "PAUSE_MIN * 2 ** (level - 1)",
+    "to": "PAUSE_MIN"
+  },
+  {
+    "name": "Retry-After honoured",
+    "file": "src/app.js",
+    "from": "wait = Math.min(PAUSE_MAX, Math.max(PAUSE_MIN, err.retryAfter, wait));",
+    "to": "wait = Math.min(PAUSE_MAX, wait);"
+  },
+  {
+    "name": "pause of /data beyond 6 h ignored",
+    "file": "src/app.js",
+    "from": "if (left > 0 && left <= PAUSE_MAX) {",
+    "to": "if (left > 0) {"
+  },
+  {
+    "name": "unread /data never written",
+    "file": "src/app.js",
+    "from": "    if (!this.loaded) return;\n    const nowWall",
+    "to": "    const nowWall"
+  },
+  {
+    "name": "one /data read at a time",
+    "file": "src/app.js",
+    "from": "if (this.loaded || this.loading || !this.started) return;",
+    "to": "if (this.loaded || !this.started) return;"
+  },
+  {
+    "name": "/data written once read late",
+    "file": "src/app.js",
+    "from": "        // What was read while /data could not be: written now.\n        this.persist();\n",
+    "to": ""
+  },
+  {
+    "name": "25 writes a minute",
+    "file": "src/app.js",
+    "from": "if (this.writes.length < WRITES_PER_MINUTE) {",
+    "to": "if (true) {"
+  },
+  {
+    "name": "429 of Gladys tried again",
+    "file": "src/app.js",
+    "from": "if (status === 429 && attempt === 0) {",
+    "to": "if (false) {"
+  },
+  {
+    "name": "404: user gone, others go on",
+    "file": "src/app.js",
+    "from": "if (status === 404) return 'gone';",
+    "to": "if (status === 404) throw err;"
+  },
+  {
+    "name": "calendar not synced skipped",
+    "file": "src/app.js",
+    "from": "if (stored && stored.sync === false) continue;",
+    "to": "if (false) continue;"
+  },
+  {
+    "name": "same events not resent",
+    "file": "src/app.js",
+    "from": "if (this.sent.get(key) === body) continue;",
+    "to": "if (false) continue;"
+  },
+  {
+    "name": "bad entry changes nothing",
+    "file": "src/app.js",
+    "from": "    if (problems.length > 0) return;\n",
+    "to": "\n"
+  },
+  {
+    "name": "old calendars deleted",
+    "file": "src/app.js",
+    "from": "if (typeof old?.external_id !== 'string' || wantedIds.has(old.external_id)) continue;",
+    "to": "continue;"
+  },
+  {
+    "name": "region required where regions exist",
+    "file": "src/app.js",
+    "from": "if (catalog.some((r) => r.top || r.group)) {",
+    "to": "if (false) {"
+  },
+  {
+    "name": "window of the month checked",
+    "file": "src/app.js",
+    "from": "const sameWindow = !fromDate || (entry?.fromDate === fromDate && entry?.toDate === toDate);",
+    "to": "const sameWindow = true;"
+  },
+  {
+    "name": "gladys retry doubled",
+    "file": "src/app.js",
+    "from": "GLADYS_RETRY_MIN * 2 ** this.gladysRetry",
+    "to": "GLADYS_RETRY_MIN"
+  },
+  {
+    "name": "/data holidays checked",
+    "file": "src/app.js",
+    "from": "const items = entry.items.filter(kind === 'holidays' ? validHoliday : validRegion);",
+    "to": "const items = entry.items;"
+  },
+  {
+    "name": "stop clears timers",
+    "file": "src/app.js",
+    "from": "      if (this.timer[key]) this.timers.clearTimeout(this.timer[key]);\n",
+    "to": ""
+  },
+  {
+    "name": "window at noon UTC",
+    "file": "src/time.js",
+    "from": "window: { from: `${fromDate}T12:00:00.000Z`, to: `${toDate}T12:00:00.000Z` },",
+    "to": "window: { from: `${fromDate}T00:00:00.000Z`, to: `${toDate}T00:00:00.000Z` },"
+  },
+  {
+    "name": "end exclusive",
+    "file": "src/events.js",
+    "from": "end: addDays(h.end, 1),",
+    "to": "end: h.end,"
+  },
+  {
+    "name": "region in the event id",
+    "file": "src/events.js",
+    "from": "const externalId = gladys.externalId(`${user.selector}:${region.code}:${h.id}`);",
+    "to": "const externalId = gladys.externalId(`${user.selector}:${h.id}`);"
+  },
+  {
+    "name": "events outside the window dropped",
+    "file": "src/events.js",
+    "from": "if (h.end < fromDate || h.start > toDate) continue;",
+    "to": "if (false) continue;"
+  },
+  {
+    "name": "id over 255 dropped",
+    "file": "src/events.js",
+    "from": "if (externalId.length > MAX_ID) continue;",
+    "to": "if (false) continue;"
+  },
+  {
+    "name": "school holidays only",
+    "file": "src/openholidays.js",
+    "from": "if (h.type !== 'School') continue;",
+    "to": "if (false) continue;"
+  },
+  {
+    "name": "holiday dates checked",
+    "file": "src/openholidays.js",
+    "from": "if (!isDate(h.startDate) || !isDate(h.endDate) || h.endDate < h.startDate) continue;",
+    "to": "if (!h.startDate) continue;"
+  },
+  {
+    "name": "too many holidays refused",
+    "file": "src/openholidays.js",
+    "from": "if (data.length > MAX_HOLIDAYS_PER_REGION) throw",
+    "to": "if (false) throw"
+  },
+  {
+    "name": "foreign region codes dropped",
+    "file": "src/openholidays.js",
+    "from": "if (!CODE.test(code) || !code.startsWith(`${country}-`) || seen.has(code)) return true;",
+    "to": "if (seen.has(code)) return true;"
+  },
+  {
+    "name": "pick: user language first",
+    "file": "src/openholidays.js",
+    "from": "return texts[language] ?? Object.values(texts)[0] ?? '';",
+    "to": "return Object.values(texts)[0] ?? '';"
+  },
+  {
+    "name": "control characters cleaned",
+    "file": "src/openholidays.js",
+    "from": ".replace(/[\\u0000-\\u001f\\u007f-\\u009f\\u2028\\u2029]+/g, ' ')",
+    "to": ".replace(/[\\u0000]+/g, ' ')"
+  },
+  {
+    "name": "answer size bounded",
+    "file": "src/http.js",
+    "from": "      if (size > maxBytes) {",
+    "to": "      if (false) {"
+  },
+  {
+    "name": "deadline on the request",
+    "file": "src/http.js",
+    "from": "const timer = timers.setTimeout(() => controller.abort(), timeoutMs);",
+    "to": "const timer = timers.setTimeout(() => {}, timeoutMs);"
+  },
+  {
+    "name": "no prefix match of names",
+    "file": "src/regions.js",
+    "from": "Object.values(r.names).some((name) => fold(name) === wanted)",
+    "to": "Object.values(r.names).some((name) => fold(name).startsWith(wanted))"
+  },
+  {
+    "name": "ambiguous never guessed",
+    "file": "src/regions.js",
+    "from": "if (matches.length > 1) return { error: 'ambiguous', matches: matches.slice(0, 5) };",
+    "to": "if (matches.length > 1) return { region: matches[0] };"
+  },
+  {
+    "name": "3 regions at most",
+    "file": "src/regions.js",
+    "from": "if (entries.length > MAX_REGIONS) return { error: 'too_many' };",
+    "to": ""
+  },
+  {
+    "name": "twins merged",
+    "file": "src/events.js",
+    "from": "    if (seen.has(twin)) continue;\n",
+    "to": "\n"
+  }
+]

@@ -1,61 +1,100 @@
-# Demo Devices Template
+# School holidays Europe
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Unofficial integration. It adds the **school holidays of your region** in
+several European countries (France excluded) to Gladys: German Land,
+Austrian Bundesland, Swiss canton, Belgian community, Dutch region, Polish
+voivodeship… as a **calendar**. The data comes from the **OpenHolidays API**
+(<https://www.openholidaysapi.org>), public, no account, no key.
 
-## What you get
+France is not offered: its school holidays (zones A, B, C) are in the
+**gladys-holidays** integration.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+It was tried with the real OpenHolidays API and a test Gladys 5.3 (calendar
+filled, scenes not tried); please report any wrong date.
 
-## Configuration
+## Setup
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+1. Install the integration (Gladys 5.3.0 or later). Nothing to fill in on
+   its configuration screen.
+2. Every user who wants it opens the integration page, **"My calendars"**
+   block, and enables it:
+   - **Country**: from the list.
+   - **Regions** (up to 3, separated by commas): the code (`DE-BY`, `AT-WI` or `AT-9`,
+     `CH-ZH`, `BE-FR`), the code without the country (`BY`) or the name in a
+     language of the API (`Bayern`, `Bavaria`, `Zürich`). Accents and case
+     do not matter. Leave it empty for a country without regions
+     (Luxembourg, Estonia, Lithuania, Andorra, Liechtenstein…).
+3. A **"School holidays – <region>"** calendar appears for each region,
+   filled with the holidays from the 1st of the current month to 13 months
+   later.
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+A name matching several regions, or an unknown region, changes nothing to
+the calendars already there: the integration status (seen by the
+administrator) says what to fix. The **"List the regions"** button
+(configuration screen, administrator) gives the codes and names of a
+country.
 
-## Actions
+Depending on the country, the API also knows groups: Belgian communities
+(`BE-FR`, `BE-NL`, `BE-DE`), Dutch regions (`NL-NO`, `NL-MI`, `NL-ZU`),
+school types in Mecklenburg (`DE-MV-ABS`, `DE-MV-BBS`), Swiss school
+regions. A region also gets the national holidays and those of the region
+above it (a town inherits its canton's).
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+## Scenes: "on holiday today"
 
-## Scenes
+A pushed calendar is **private** at first. To use it in scenes, share it
+(**Shared** toggle in "My calendars"): the whole household then sees it and
+the scenes read it, for example:
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+- trigger **"A calendar event is coming"** (the day before school starts
+  again, the first day of the holidays);
+- condition **"An event is running"** on that calendar: true on a holiday
+  (to skip the children's alarm).
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+There is no device: the calendar is enough.
 
-## Dashboard
+## What the integration does
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+- **Reads**: once a day at most per region (once a week for the lists of
+  regions), however many restarts or clicks. The date of the data and of the
+  last attempt are kept in `/data`.
+- **API down**: every request is paused 60 s, then 2 min, 4 min… up to 6 h,
+  honouring the `Retry-After` header; the holidays already read stay in the
+  calendar. Answers are limited to 1 MB (2 MB for the lists of regions) and
+  20 s.
+- **Writes to Gladys**: 25 a minute at most (Gladys accepts 30); nothing is
+  resent when nothing changed.
+- **The past is kept**: only the current window (from the 1st of the month,
+  13 months) is replaced; past holidays stay in the calendar.
+- **Calendar not synced** (**Sync** toggle off): it receives nothing more;
+  turned back on, it is filled again.
+- The "back to school" and "end of lessons" days of the API are not
+  holidays: they are left out. A half day is noted in the event description.
+  A holiday given once per school type (Zürich: `CH-ZH-VS` Volksschulen,
+  `CH-ZH-MS` Mittelschulen…) with the same dates shows once; for
+  the dates of one school type only, give its group code.
+- Holidays are full-day events, stored at the midnights of the Gladys
+  timezone (timezones from UTC-11 to UTC+11).
 
-## Troubleshooting
+## Countries
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+Offered: Albania, Andorra, Austria, Belarus, Belgium, Bulgaria, Croatia,
+Czechia, Estonia, Germany, Hungary, Ireland, Italy, Latvia, Liechtenstein,
+Lithuania, Luxembourg, Malta, Moldova, Monaco, Netherlands, Poland,
+Portugal, Romania, San Marino, Serbia, Slovakia, Slovenia, Spain,
+Switzerland. The Gladys catalog shows it in 20 of them (the catalog limit);
+the search finds it everywhere.
+
+Coverage depends on the API: some countries publish their school year late
+(in November 2026, nothing yet for Spain or Italy in 2026-2027). An empty
+calendar fills as soon as the API has the dates.
+
+## Data and licence
+
+Contains information from the OpenHolidays API
+(<https://www.openholidaysapi.org>), made available under the Open Database
+License (ODbL-1.0,
+<https://github.com/openpotato/openholidaysapi.data/blob/main/LICENSE>).
+The integration calls the API and embeds none of its data; the API server
+(AGPL-3.0) is neither copied nor ported. Every calendar and every event
+cites the source. The integration itself is licensed under Apache-2.0.

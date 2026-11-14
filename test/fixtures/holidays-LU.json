@@ -1,0 +1,92 @@
+[
+  {
+    "id": "2fc0573c-2b47-4e67-80ff-f04b4a4714fb",
+    "startDate": "2026-10-31",
+    "endDate": "2026-11-08",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Congé de la Toussaint" },
+      { "language": "DE", "text": "Allerheiligenferien" },
+      { "language": "LB", "text": "Allerhellgen Vakanz" },
+      { "language": "EN", "text": "All Saints Day Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "7518b09c-10d2-4291-aa01-37d09eb028c7",
+    "startDate": "2026-12-19",
+    "endDate": "2027-01-03",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Vacances de Noël" },
+      { "language": "DE", "text": "Weihnachtsferien" },
+      { "language": "LB", "text": "Chrëschtdag Vakanz" },
+      { "language": "EN", "text": "Christmas Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "b0c2e75e-1a9a-44fb-865c-ad55f1bab739",
+    "startDate": "2027-02-06",
+    "endDate": "2027-02-14",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Congé de Carnaval" },
+      { "language": "DE", "text": "Karnevalsferien" },
+      { "language": "LB", "text": "Karneval Vakanz" },
+      { "language": "EN", "text": "Carnival Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "bed67dd3-fd43-4c8a-a737-1fab2dcad86b",
+    "startDate": "2027-03-27",
+    "endDate": "2027-04-11",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Vacances de Pâques" },
+      { "language": "DE", "text": "Osterferien" },
+      { "language": "LB", "text": "Ouschtervakanz" },
+      { "language": "EN", "text": "Easter Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "c89c917c-c1eb-478d-955a-0cb25584fa2f",
+    "startDate": "2027-05-29",
+    "endDate": "2027-06-06",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Congé de la Pentecôte" },
+      { "language": "DE", "text": "Pfingstferien" },
+      { "language": "LB", "text": "Päischtfeierdeeg" },
+      { "language": "EN", "text": "Pentecost Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "8673d187-f415-41d4-8f9a-8ae8bd48b446",
+    "startDate": "2027-07-16",
+    "endDate": "2027-09-14",
+    "type": "School",
+    "name": [
+      { "language": "FR", "text": "Vacances d’été" },
+      { "language": "DE", "text": "Sommerferien" },
+      { "language": "LB", "text": "Grouss Vakanz" },
+      { "language": "EN", "text": "Summer Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  }
+]

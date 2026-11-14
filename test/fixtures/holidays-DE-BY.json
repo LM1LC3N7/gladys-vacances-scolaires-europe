@@ -1,0 +1,128 @@
+[
+  {
+    "id": "b5045dcf-6618-41e7-b649-c3d6d135a611",
+    "startDate": "2026-11-02",
+    "endDate": "2026-11-06",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Herbstferien" },
+      { "language": "EN", "text": "Autumn Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "76149977-58f0-455c-b74a-89937a90c200",
+    "startDate": "2026-11-18",
+    "endDate": "2026-11-18",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Buß- und Bettag" },
+      { "language": "EN", "text": "Repentance Day" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "c38a3f7c-04e7-4acf-ae55-1063a077bf9b",
+    "startDate": "2026-12-24",
+    "endDate": "2027-01-08",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Weihnachtsferien" },
+      { "language": "EN", "text": "Christmas Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "37821c22-3fa7-46f9-9cb2-9b7812ae859a",
+    "startDate": "2027-02-08",
+    "endDate": "2027-02-12",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Frühjahrsferien" },
+      { "language": "EN", "text": "Spring Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "843e9ad1-beac-4553-ae45-32f9f41a007e",
+    "startDate": "2027-03-22",
+    "endDate": "2027-04-02",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Osterferien" },
+      { "language": "EN", "text": "Easter Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "1e397cac-c9a1-427b-b60d-89be682c8ab4",
+    "startDate": "2027-05-18",
+    "endDate": "2027-05-28",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Pfingstferien" },
+      { "language": "EN", "text": "Pentecost Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "f89e2b94-62aa-4a95-98be-972bc1144988",
+    "startDate": "2027-08-02",
+    "endDate": "2027-09-13",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Sommerferien" },
+      { "language": "EN", "text": "Summer Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "b64a2f1e-2886-4510-9c14-0d5ba6fa91b5",
+    "startDate": "2027-11-02",
+    "endDate": "2027-11-05",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Herbstferien" },
+      { "language": "EN", "text": "Autumn Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  },
+  {
+    "id": "99499e30-3ed5-4f69-a7cb-139b7c3fbc66",
+    "startDate": "2027-11-17",
+    "endDate": "2027-11-17",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Buß- und Bettag" },
+      { "language": "EN", "text": "Repentance Day" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [{ "code": "DE-BY", "shortName": "BY" }]
+  }
+]

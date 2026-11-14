@@ -1,0 +1,50 @@
+[
+  {
+    "code": "BE-DE",
+    "shortName": "DE",
+    "category": [
+      { "language": "DE", "text": "Gemeinschaft" },
+      { "language": "FR", "text": "communauté" },
+      { "language": "NL", "text": "Gemeenschap" },
+      { "language": "EN", "text": "community" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Deutschsprachige Gemeinschaft" },
+      { "language": "FR", "text": "Communauté germanophone" },
+      { "language": "NL", "text": "Duitstalige Gemeenschap" },
+      { "language": "EN", "text": "German-speaking community" }
+    ]
+  },
+  {
+    "code": "BE-FR",
+    "shortName": "FR",
+    "category": [
+      { "language": "FR", "text": "communauté" },
+      { "language": "NL", "text": "Gemeenschap" },
+      { "language": "DE", "text": "Gemeinschaft" },
+      { "language": "EN", "text": "community" }
+    ],
+    "name": [
+      { "language": "FR", "text": "Communauté française" },
+      { "language": "NL", "text": "Franse Gemeenschap" },
+      { "language": "DE", "text": "Französische Gemeinschaft" },
+      { "language": "EN", "text": "French community" }
+    ]
+  },
+  {
+    "code": "BE-NL",
+    "shortName": "NL",
+    "category": [
+      { "language": "NL", "text": "Gemeenschap" },
+      { "language": "FR", "text": "communauté" },
+      { "language": "DE", "text": "Gemeinschaft" },
+      { "language": "EN", "text": "community" }
+    ],
+    "name": [
+      { "language": "NL", "text": "Vlaamse Gemeenschap" },
+      { "language": "FR", "text": "Communauté flamande" },
+      { "language": "DE", "text": "Flämische Gemeinschaft" },
+      { "language": "EN", "text": "Flemish community" }
+    ]
+  }
+]
