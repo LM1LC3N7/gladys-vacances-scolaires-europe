@@ -13,6 +13,7 @@ export const TEXTS = {
     fr: 'Source : API OpenHolidays (openholidaysapi.org), ODbL-1.0.',
   },
   halfDay: { en: 'Half day.', fr: 'Demi-journée.' },
+  schoolTypes: { en: 'For: {types}.', fr: 'Pour : {types}.' },
   wholeCountry: { en: 'whole country', fr: 'tout le pays' },
   statusOk: {
     en: '{users} user(s), {calendars} calendar(s) up to date.',
@@ -53,6 +54,10 @@ export const TEXTS = {
   problemTooMany: {
     en: 'user {user}: too many holidays for {region}, not published',
     fr: 'utilisateur {user} : trop de vacances pour {region}, rien publié',
+  },
+  problemEmpty: {
+    en: 'user {user}: OpenHolidays gave no holiday for {region}, the previous ones are kept',
+    fr: 'utilisateur {user} : OpenHolidays n’a donné aucune vacance pour {region}, les précédentes sont gardées',
   },
   problemRefused: {
     en: 'user {user}: Gladys refused the calendar {region} ({reason})',

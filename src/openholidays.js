@@ -18,11 +18,14 @@ import { HttpError, getJson } from './http.js';
 import { daysBetween, isDate } from './time.js';
 
 const LANG = /^[A-Z]{2}$/;
-const CODE = /^[A-Z]{2}(?:-[A-Z0-9]{1,8}){0,3}$/;
+// Region codes are upper-case letters of any script and digits: the API
+// writes AT-KÄ (Kärnten), AT-NÖ, CH-BE-SL-RÜ.
+export const CODE = /^[A-Z]{2}(?:-[\p{Lu}\p{Nd}]{1,8}){0,3}$/u;
 const ID = /^[A-Za-z0-9-]{1,64}$/;
 const MAX_TEXT = 300;
-// A school holiday longer than this is not a holiday (summer is ~10 weeks).
-const MAX_HOLIDAY_DAYS = 120;
+// A school holiday longer than this is not a holiday: the longest summers
+// are ~4 months (Bulgaria: 16 May to 14 September, 122 days).
+const MAX_HOLIDAY_DAYS = 200;
 
 /** `[{ language, text }]` -> `{ EN: 'Christmas', DE: 'Weihnachten' }` (bounded). */
 export function readTexts(list) {
@@ -57,6 +60,17 @@ export function pick(texts, language) {
   return texts[language] ?? Object.values(texts)[0] ?? '';
 }
 
+/** The codes of `[{ code }]` (groups of a holiday: school types), bounded. */
+function readCodes(list) {
+  if (!Array.isArray(list)) return [];
+  const out = [];
+  for (const entry of list.slice(0, 20)) {
+    const code = typeof entry?.code === 'string' ? entry.code.toUpperCase() : '';
+    if (CODE.test(code) && !out.includes(code)) out.push(code);
+  }
+  return out;
+}
+
 /**
  * The school holidays of an answer, checked: `[{ id, start, end, names,
  * comments, halfDay }]` (end inclusive), type "School" only (the back-to-school
@@ -65,7 +79,11 @@ export function pick(texts, language) {
  */
 export function parseHolidays(data) {
   if (!Array.isArray(data)) throw new HttpError('parse', 'not a list of holidays');
-  if (data.length > MAX_HOLIDAYS_PER_REGION) throw new HttpError('parse', 'too many holidays');
+  if (data.length > MAX_HOLIDAYS_PER_REGION) {
+    // A real answer, but more than a calendar window can take: refused (not
+    // an outage), said in the status.
+    throw Object.assign(new HttpError('parse', 'too many holidays'), { tooMany: true });
+  }
   const out = [];
   const seen = new Set();
   for (const h of data) {
@@ -84,6 +102,7 @@ export function parseHolidays(data) {
       names,
       comments: readTexts(h.comment),
       halfDay: h.temporalScope === 'HalfDay',
+      groups: readCodes(h.groups),
     });
   }
   out.sort((a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : a.id < b.id ? -1 : 1));
@@ -132,6 +151,7 @@ export function parseCatalog(country, subdivisions, groups) {
 }
 
 export class OpenHolidaysClient {
+  // `signal` (set by the app at each start) cuts the request in flight on stop.
   constructor({ fetch: fetchImpl = globalThis.fetch, now = Date.now, timers, signal } = {}) {
     this.fetch = fetchImpl;
     this.now = now;

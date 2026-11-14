@@ -47,6 +47,11 @@ src/i18n.js          runtime texts (en/fr)
 - **25 calendar writes a minute** at most (Gladys: 30); identical content is
   not resent; a reconnection or an account change resends.
 - **Never guess a region**: unknown or ambiguous = reported, nothing changed.
+  Codes may hold non-ASCII capitals (AT-KÄ, CH-BE-SL-RÜ): never restrict them
+  to ASCII.
+- **Answers**: unreadable = outage (pause); more than 500 holidays = refused
+  and said; an empty answer after holidays is kept twice (said) before being
+  believed; identical holidays per school type are one event naming them.
 - **The window**: 1st of the month to 13 months later, bounds at noon UTC (see
   src/time.js): never a 400, the past never pruned, timezones UTC-11..+11.
 - **Data**: the API is called, nothing of it is embedded (test fixtures

@@ -1,0 +1,128 @@
+[
+  {
+    "code": "AT-BL",
+    "isoCode": "AT-1",
+    "shortName": "BL",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Burgenland" },
+      { "language": "EN", "text": "Burgenland" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-KÄ",
+    "isoCode": "AT-2",
+    "shortName": "KÄ",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Kärnten" },
+      { "language": "EN", "text": "Carinthia" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-NÖ",
+    "isoCode": "AT-3",
+    "shortName": "NÖ",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Niederösterreich" },
+      { "language": "EN", "text": "Lower Austria" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-OÖ",
+    "isoCode": "AT-4",
+    "shortName": "OÖ",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Oberösterreich" },
+      { "language": "EN", "text": "Upper Austria" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-SB",
+    "isoCode": "AT-5",
+    "shortName": "SB",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Salzburg" },
+      { "language": "EN", "text": "Salzburg" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-SM",
+    "isoCode": "AT-6",
+    "shortName": "SM",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Steiermark" },
+      { "language": "EN", "text": "Styria" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-TI",
+    "isoCode": "AT-7",
+    "shortName": "TI",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Tirol" },
+      { "language": "EN", "text": "Tyrol" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-VA",
+    "isoCode": "AT-8",
+    "shortName": "VA",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Vorarlberg" },
+      { "language": "EN", "text": "Vorarlberg" }
+    ],
+    "officialLanguages": ["DE"]
+  },
+  {
+    "code": "AT-WI",
+    "isoCode": "AT-9",
+    "shortName": "WI",
+    "category": [
+      { "language": "DE", "text": "Bundesland" },
+      { "language": "EN", "text": "state" }
+    ],
+    "name": [
+      { "language": "DE", "text": "Wien" },
+      { "language": "EN", "text": "Vienna" }
+    ],
+    "officialLanguages": ["DE"]
+  }
+]

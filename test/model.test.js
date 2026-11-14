@@ -274,3 +274,142 @@ test('Retry-After: seconds or an HTTP date, anything else ignored', () => {
   assert.equal(retryAfterMs('soon', now), undefined);
   assert.equal(retryAfterMs(undefined, now), undefined);
 });
+
+test('twins: merged only when dates, names, notes and half day are all equal', () => {
+  const gladys = createFakeGladys({ selector: 'vse' });
+  const region = { country: 'CH', code: 'CH-ZH', names: { DE: 'Zürich' } };
+  const user = { selector: 'u', language: 'de' };
+  const base = {
+    id: 'a',
+    startDate: '2027-04-26',
+    endDate: '2027-05-08',
+    type: 'School',
+    name: [{ language: 'DE', text: 'Frühlingsferien' }],
+  };
+  const count = (other) =>
+    buildEvents(
+      gladys,
+      user,
+      region,
+      parseHolidays([base, { ...base, id: 'b', ...other }]),
+      '2026-11-01',
+      '2027-12-01',
+    ).length;
+  assert.equal(count({}), 1, 'identical: one');
+  assert.equal(count({ startDate: '2027-04-27' }), 2, 'another start');
+  assert.equal(count({ endDate: '2027-05-07' }), 2, 'another end');
+  assert.equal(count({ name: [{ language: 'DE', text: 'Frühling' }] }), 2, 'another name');
+  assert.equal(count({ comment: [{ language: 'DE', text: 'Nur Gymnasien' }] }), 2, 'a note');
+  assert.equal(count({ temporalScope: 'HalfDay' }), 2, 'a half day');
+});
+
+test('school types named in the description, merged twins name them all', () => {
+  const gladys = createFakeGladys({ selector: 'vse' });
+  const catalog = parseCatalog(
+    'CH',
+    [],
+    [
+      {
+        code: 'CH-ZH-VS',
+        name: [
+          { language: 'DE', text: 'Volksschulen' },
+          { language: 'FR', text: 'Écoles primaires' },
+        ],
+      },
+      { code: 'CH-ZH-MS', name: [{ language: 'DE', text: 'Mittelschulen' }] },
+    ],
+  );
+  const h = (id, groups) => ({
+    id,
+    startDate: '2027-03-26',
+    endDate: '2027-03-29',
+    type: 'School',
+    name: [{ language: 'DE', text: 'Ostern' }],
+    groups: groups.map((code) => ({ code })),
+  });
+  const holidays = parseHolidays([h('b', ['CH-ZH-VS']), h('a', ['CH-ZH-MS', 'CH-ZH-BS'])]);
+  const region = { country: 'CH', code: 'CH-ZH', names: { DE: 'Zürich' } };
+  const [event] = buildEvents(
+    gladys,
+    { selector: 'u', language: 'fr' },
+    region,
+    holidays,
+    '2026-11-01',
+    '2027-12-01',
+    catalog,
+  );
+  assert.equal(event.external_id, 'ext:vse:u:CH-ZH:a');
+  assert.equal(
+    event.description,
+    'Pour : Mittelschulen, CH-ZH-BS, Écoles primaires.\nSource : API OpenHolidays (openholidaysapi.org), ODbL-1.0.',
+  );
+});
+
+test('the window edges: a holiday starting on the last date is in, the day after is out', () => {
+  const gladys = createFakeGladys({ selector: 'vse' });
+  const region = { country: 'DE', code: 'DE-BY', names: { DE: 'Bayern' } };
+  const holidays = parseHolidays([
+    holiday({ id: 'on', startDate: '2027-12-01', endDate: '2027-12-03' }),
+    holiday({ id: 'after', startDate: '2027-12-02', endDate: '2027-12-03' }),
+    holiday({ id: 'ends', startDate: '2026-10-20', endDate: '2026-11-01' }),
+    holiday({ id: 'before', startDate: '2026-10-20', endDate: '2026-10-31' }),
+  ]);
+  const ids = buildEvents(
+    gladys,
+    { selector: 'u' },
+    region,
+    holidays,
+    '2026-11-01',
+    '2027-12-01',
+  ).map((e) => e.external_id.split(':').at(-1));
+  assert.deepEqual(ids.sort(), ['ends', 'on']);
+});
+
+test('long summers kept (Bulgaria: 122 days); a year is not a holiday', () => {
+  const out = parseHolidays([
+    holiday({ id: 'bg', startDate: '2026-05-16', endDate: '2026-09-14' }),
+    holiday({ id: 'year', startDate: '2026-01-01', endDate: '2026-12-31' }),
+  ]);
+  assert.deepEqual(
+    out.map((h) => h.id),
+    ['bg'],
+  );
+});
+
+test('non-ASCII region codes: Austria and Swiss districts, by code, ISO code and name', () => {
+  const at = parseCatalog('AT', fixture('subdivisions-AT'), []);
+  assert.deepEqual(at.map((r) => r.code).sort(), [
+    'AT-BL',
+    'AT-KÄ',
+    'AT-NÖ',
+    'AT-OÖ',
+    'AT-SB',
+    'AT-SM',
+    'AT-TI',
+    'AT-VA',
+    'AT-WI',
+  ]);
+  const code = (entry) => resolveRegion('AT', at, entry).region?.code;
+  assert.equal(code('AT-KÄ'), 'AT-KÄ');
+  assert.equal(code('at-kä'), 'AT-KÄ', 'decomposed Ä');
+  assert.equal(code('AT-3'), 'AT-NÖ');
+  assert.equal(code('Oberösterreich'), 'AT-OÖ');
+  assert.equal(code('oberosterreich'), 'AT-OÖ');
+  const ch = parseCatalog('CH', fixture('subdivisions-CH-BE'), []);
+  assert.ok(ch.some((r) => r.code === 'CH-BE-SL-RÜ'));
+  assert.equal(resolveRegion('CH', ch, 'ch-be-sl-rü').region.code, 'CH-BE-SL-RÜ');
+  // Still no punctuation, no lower case, no foreign prefix.
+  const odd = parseCatalog(
+    'AT',
+    [
+      { code: 'AT-k', name: [{ language: 'DE', text: 'x' }] },
+      { code: 'AT-K.', name: [{ language: 'DE', text: 'x' }] },
+      { code: 'DE-KÄ', name: [{ language: 'DE', text: 'x' }] },
+    ],
+    [],
+  );
+  assert.deepEqual(
+    odd.map((r) => r.code),
+    ['AT-K'],
+  );
+});

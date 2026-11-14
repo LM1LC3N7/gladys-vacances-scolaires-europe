@@ -627,16 +627,223 @@ test('reconnection: everything resent once, still no request to the API', async 
   await settle();
 });
 
-test('a new month moves the window: the API read again, the window republished', async (t) => {
+test('a new month moves the window: still one read a day, the window republished', async (t) => {
   const clock = createFakeClock(Date.parse('2026-11-30T23:00:00Z'));
   const { app, fake, net } = await setup({ clock });
   t.after(() => app.stop());
   assert.equal(holidayCalls(net), 1);
   await clock.advance(2 * HOUR);
-  assert.equal(holidayCalls(net), 2, 'a new window: read again');
-  assert.ok(net.calls.at(-1).url.includes('validFrom=2026-12-01&validTo=2028-01-01'));
+  assert.equal(holidayCalls(net), 1, 'read 2 h ago: not again for the new month');
   assert.deepEqual(fake.publishedCalendarEvents.at(-1).window, {
     from: '2026-12-01T12:00:00.000Z',
     to: '2028-01-01T12:00:00.000Z',
   });
+  for (const e of fake.publishedCalendarEvents.at(-1).events) assert.ok(e.end > '2026-12-01');
+  await clock.advance(23 * HOUR);
+  assert.equal(holidayCalls(net), 2, 'a day after the last read');
+  assert.ok(net.calls.at(-1).url.includes('validFrom=2026-12-01&validTo=2028-01-01'));
+});
+
+test('Austria: Länder with non-ASCII codes (AT-KÄ), by name, ISO code or API code', async (t) => {
+  for (const entry of ['Kärnten', 'kaernten', 'AT-2', 'at-kä', 'KÄ', 'Carinthia']) {
+    const { app, fake, net } = await setup({
+      accounts: [account('pepper', { country: 'AT', regions: entry }, 'de')],
+    });
+    t.after(() => app.stop());
+    if (entry === 'kaernten') {
+      assert.match(fake.connectionStatus.message.en, /region "kaernten" unknown in Austria/);
+      await app.stop();
+      continue;
+    }
+    assert.deepEqual(
+      fake.calendars.map((c) => [c.external_id, c.name]),
+      [[CAL('pepper', 'AT-KÄ'), 'School holidays – Kärnten']],
+      entry,
+    );
+    assert.ok(net.calls.some((c) => c.url.includes('subdivisionCode=AT-K%C3%84')));
+    assert.ok(fake.calendarEvents.length >= 8);
+    assert.ok(
+      fake.calendarEvents.every((e) => e.external_id.startsWith(`${CAL('pepper', 'AT-KÄ')}:`)),
+    );
+    await app.stop();
+  }
+  const { app, fake } = await setup({ accounts: [] });
+  t.after(() => app.stop());
+  const at = await fake.action('list_regions', { country: 'AT' });
+  for (const code of ['AT-KÄ', 'AT-NÖ', 'AT-OÖ', 'AT-WI'])
+    assert.ok(at.data.message.en.includes(code), code);
+  assert.match(at.data.message.fr, /AT-NÖ – Niederösterreich/);
+});
+
+test('Switzerland: districts with non-ASCII codes kept, found by code', async (t) => {
+  const { app, fake, net } = await setup({
+    accounts: [account('pepper', { country: 'CH', regions: 'CH-BE-SL-RÜ' }, 'fr')],
+  });
+  t.after(() => app.stop());
+  assert.deepEqual(
+    fake.calendars.map((c) => c.external_id),
+    [CAL('pepper', 'CH-BE-SL-RÜ')],
+  );
+  assert.ok(net.calls.some((c) => c.url.includes('subdivisionCode=CH-BE-SL-R%C3%9C')));
+});
+
+test('an unreadable 200 is an outage: paused, the status says so', async (t) => {
+  for (const [label, body] of [
+    ['html', '<html>maintenance</html>'],
+    ['object', '{"a":1}'],
+    ['invalid utf-8', new Uint8Array([0x5b, 0xff, 0xfe, 0x5d])],
+    ['empty', ''],
+  ]) {
+    const net = createNet();
+    net.override = (url) =>
+      url.includes('SchoolHolidays') ? new Response(body, { status: 200 }) : undefined;
+    const { app, fake, clock } = await setup({ net });
+    t.after(() => app.stop());
+    assert.equal(fake.connectionStatus.connected, false, label);
+    assert.match(fake.connectionStatus.message.en, /unreachable \(parse\)/, label);
+    const calls = net.calls.length;
+    await clock.advance(50 * SECOND);
+    assert.equal(net.calls.length, calls, `${label}: paused`);
+    await clock.advance(15 * SECOND);
+    assert.equal(net.count('SchoolHolidays'), 2, `${label}: read again after the pause`);
+    await app.stop();
+  }
+});
+
+test('more than 500 holidays: refused, said, not an outage, read again the next day', async (t) => {
+  const net = createNet();
+  const many = Array.from({ length: 501 }, (_, i) => ({
+    id: `h${i}`,
+    startDate: '2027-01-01',
+    endDate: '2027-01-02',
+    type: 'School',
+    name: [{ language: 'DE', text: 'x' }],
+  }));
+  net.override = (url) => (url.includes('SchoolHolidays') ? json(many) : undefined);
+  const { app, fake, clock } = await setup({ net });
+  t.after(() => app.stop());
+  assert.equal(fake.connectionStatus.connected, true);
+  assert.match(fake.connectionStatus.message.fr, /trop de vacances pour Bayern, rien publié/);
+  assert.equal(fake.publishedCalendarEvents.length, 0);
+  await clock.advance(5 * HOUR);
+  assert.equal(net.count('SchoolHolidays'), 1);
+  net.override = undefined;
+  await clock.advance(20 * HOUR);
+  assert.equal(net.count('SchoolHolidays'), 2);
+  assert.equal(fake.publishedCalendarEvents.length, 1);
+  assert.doesNotMatch(fake.connectionStatus.message.fr, /trop de vacances/);
+});
+
+test('stop during a request: the request cut, no pause armed, nothing written after', async (t) => {
+  const net = createNet();
+  const store = createMemoryStore();
+  let signal;
+  net.override = (url, init) => {
+    if (!url.includes('SchoolHolidays')) return undefined;
+    signal = init.signal;
+    return new Promise((resolve, reject) => {
+      init.signal.addEventListener('abort', () =>
+        reject(Object.assign(new Error('aborted'), { name: 'AbortError' })),
+      );
+    });
+  };
+  const { app, clock } = await setup({ net, store });
+  t.after(() => app.stop());
+  assert.ok(signal && !signal.aborted);
+  const saves = store.saves;
+  await app.stop();
+  await settle();
+  assert.equal(signal.aborted, true);
+  assert.equal(clock.pending.size, 0, 'no timer after stop');
+  assert.equal(store.saves, saves, 'no write after stop');
+  assert.equal(app.pause.until, 0);
+});
+
+test('an empty answer after holidays: kept and said twice, accepted the third day', async (t) => {
+  const net = createNet();
+  const { app, fake, clock } = await setup({ net });
+  t.after(() => app.stop());
+  const events = fake.calendarEvents.length;
+  assert.ok(events >= 8);
+  net.override = (url) => (url.includes('SchoolHolidays') ? json([]) : undefined);
+  await clock.advance(25 * HOUR);
+  assert.equal(net.count('SchoolHolidays'), 2);
+  assert.equal(fake.calendarEvents.length, events, 'kept');
+  assert.match(
+    fake.connectionStatus.message.en,
+    /no holiday for Bayern, the previous ones are kept/,
+  );
+  await clock.advance(25 * HOUR);
+  assert.equal(net.count('SchoolHolidays'), 3);
+  assert.equal(fake.calendarEvents.length, events, 'kept a second time');
+  await clock.advance(25 * HOUR);
+  assert.equal(net.count('SchoolHolidays'), 4);
+  assert.equal(fake.calendarEvents.length, 0, 'the third empty answer is the truth');
+  assert.doesNotMatch(fake.connectionStatus.message.en, /previous ones are kept/);
+});
+
+test('a user selector Gladys would not give is skipped; a 403 is not a refusal', async (t) => {
+  const { app, fake, clock } = await setup({
+    connect: false,
+    accounts: [
+      account('../x', { country: 'DE', regions: 'Bayern' }),
+      account('pepper', { country: 'DE', regions: 'Bayern' }),
+    ],
+  });
+  t.after(() => app.stop());
+  app.gladys.publishCalendarEvents = async () => {
+    throw Object.assign(new Error('not synced'), { status: 403 });
+  };
+  await app.gladys.connect();
+  await clock.advance(0);
+  assert.deepEqual(
+    fake.publishedCalendars.map((p) => p.user),
+    ['pepper'],
+  );
+  assert.doesNotMatch(fake.connectionStatus.message.en, /refused/);
+  assert.match(fake.connectionStatus.message.en, /^1 user\(s\)/);
+});
+
+test('a click and a pass at once: one request for the regions', async (t) => {
+  const net = createNet();
+  let release;
+  const gate = new Promise((r) => (release = r));
+  net.override = async (url) => {
+    if (url.includes('Subdivisions')) await gate;
+    return undefined;
+  };
+  const { app, fake, clock } = await setup({ net });
+  t.after(() => app.stop());
+  const click = fake.action('list_regions', { country: 'DE' });
+  await settle();
+  release();
+  const ack = await click;
+  await clock.advance(0);
+  assert.match(ack.data.message.en, /DE-BY/);
+  assert.equal(net.count('Subdivisions?countryIsoCode=DE'), 1);
+  assert.equal(fake.calendars.length, 1);
+});
+
+test('a failed read keeps publishing the holidays read before', async (t) => {
+  const { app, fake, clock, net } = await setup();
+  t.after(() => app.stop());
+  net.fail = 503;
+  fake.calendars[0].sync = true;
+  await clock.advance(25 * HOUR);
+  assert.equal(net.count('SchoolHolidays'), 2);
+  // A reconnection resends: from the old data.
+  await app.stop();
+  await app.gladys.disconnect();
+  await app.gladys.connect();
+  await clock.advance(0);
+  assert.ok(fake.publishedCalendarEvents.at(-1).events.length >= 8);
+});
+
+test('a user without language: the English names', async (t) => {
+  const { app, fake } = await setup({
+    accounts: [{ user: { selector: 'pepper' }, config: { country: 'DE', regions: 'Bayern' } }],
+  });
+  t.after(() => app.stop());
+  assert.equal(fake.calendars[0].name, 'School holidays – Bavaria');
+  assert.ok(fake.calendarEvents.some((e) => e.name === 'Christmas Holidays'));
 });

@@ -91,8 +91,8 @@ export const json = (body, status = 200, headers = {}) =>
   });
 
 /**
- * The API as recorded: Subdivisions/Groups of DE, BE, LU; school holidays of
- * DE-BY, DE-BE, BE-FR (group) and LU. `net.fail` answers every request with
+ * The API as recorded: Subdivisions/Groups of DE, BE, LU, AT, CH (Bern only);
+ * school holidays of DE-BY, DE-BE, BE-FR (group), LU and AT-KÄ. `net.fail` answers every request with
  * that status (or a function of the URL); `calls` records every request.
  */
 export function createNet() {
@@ -103,6 +103,10 @@ export function createNet() {
     'Groups?countryIsoCode=BE': fixture('groups-BE'),
     'Subdivisions?countryIsoCode=LU': [],
     'Groups?countryIsoCode=LU': [],
+    'Subdivisions?countryIsoCode=AT': fixture('subdivisions-AT'),
+    'Groups?countryIsoCode=AT': [],
+    'Subdivisions?countryIsoCode=CH': fixture('subdivisions-CH-BE'),
+    'Groups?countryIsoCode=CH': [],
   };
   const net = {
     calls: [],
@@ -132,7 +136,13 @@ export function createNet() {
       const q = u.searchParams;
       if (path === 'SchoolHolidays') {
         const code = q.get('subdivisionCode') ?? q.get('groupCode') ?? q.get('countryIsoCode');
-        const name = { 'DE-BY': 'DE-BY', 'DE-BE': 'DE-BE', 'BE-FR': 'BE-FR', LU: 'LU' }[code];
+        const name = {
+          'DE-BY': 'DE-BY',
+          'DE-BE': 'DE-BE',
+          'BE-FR': 'BE-FR',
+          LU: 'LU',
+          'AT-KÄ': 'AT-KA',
+        }[code];
         return json(name ? fixture(`holidays-${name}`) : []);
       }
       const answer = answers[`${path}?countryIsoCode=${q.get('countryIsoCode')}`];

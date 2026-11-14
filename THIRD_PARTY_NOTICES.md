@@ -17,7 +17,9 @@ under the Open Database License (ODbL-1.0):
 <https://github.com/openpotato/openholidaysapi.data/blob/main/LICENSE>.
 
 The test fixtures (`test/fixtures/*.json`, not part of the image) are answers
-of the API recorded on 2026-11-14, unchanged, under the same licence.
+of the API recorded on 2026-11-14, unchanged (`subdivisions-CH-BE.json`:
+the canton of Bern only, cut out of the Swiss answer), under the same
+licence.
 
 Changes made to the data when it is shown in Gladys: the last day of a
 holiday becomes an exclusive end (the day after), the name is taken in the

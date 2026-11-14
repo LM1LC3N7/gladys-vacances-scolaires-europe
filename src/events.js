@@ -61,23 +61,39 @@ export function buildCalendar(gladys, user, region) {
  * The events of one calendar: the holidays overlapping [fromDate, toDate]
  * (inclusive dates), full-day, end exclusive (the day after the last day).
  * Holidays whose id would exceed 255 characters are dropped (never cut: a
- * cut id could collide).
+ * cut id could collide). The same holiday given once per school type with
+ * the same dates, names and notes is one event (the first id), naming every
+ * school type it is for; `catalog` (the regions of the country) gives the
+ * names of the school types.
  */
-export function buildEvents(gladys, user, region, holidays, fromDate, toDate) {
+export function buildEvents(gladys, user, region, holidays, fromDate, toDate, catalog = []) {
   const lang = textLanguage(user);
   const apiLang = apiLanguage(user);
-  const events = [];
-  // The same holiday given once per school type (Zürich: Volksschule,
-  // Mittelschule...) with the same dates and names: one event, the first id.
-  const seen = new Set();
+  const typeName = (code) => {
+    const entry = catalog.find((r) => r.code === code);
+    return entry ? pick(entry.names, apiLang) : code;
+  };
+  const kept = new Map();
   for (const h of holidays) {
     if (h.end < fromDate || h.start > toDate) continue;
     const twin = JSON.stringify([h.start, h.end, h.names, h.comments, h.halfDay]);
-    if (seen.has(twin)) continue;
-    seen.add(twin);
+    const first = kept.get(twin);
+    if (first) {
+      for (const g of h.groups ?? []) if (!first.groups.includes(g)) first.groups.push(g);
+      continue;
+    }
     const externalId = gladys.externalId(`${user.selector}:${region.code}:${h.id}`);
     if (externalId.length > MAX_ID) continue;
-    const notes = [pick(h.comments, apiLang), h.halfDay ? t('halfDay', lang) : '']
+    kept.set(twin, { h, externalId, groups: [...(h.groups ?? [])] });
+  }
+  const events = [];
+  for (const { h, externalId, groups } of kept.values()) {
+    const types = groups.map(typeName).join(', ');
+    const notes = [
+      pick(h.comments, apiLang),
+      h.halfDay ? t('halfDay', lang) : '',
+      types ? t('schoolTypes', lang, { types }) : '',
+    ]
       .filter(Boolean)
       .join(' ');
     events.push({

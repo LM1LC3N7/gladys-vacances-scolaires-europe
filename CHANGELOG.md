@@ -18,6 +18,10 @@ the notes of the version's GitHub Release.
   13 months ahead, read once a day.
 - Regions given by code, ISO code or name, up to 3 per user; "List the
   regions" action.
-- Catalog countries (`countries`, Gladys 5.3.0): 20 of the 30 countries.
+- Catalog countries (`countries`, Gladys 5.3.0): the 14 countries with
+  published school holidays, then 6 EU members waiting for theirs.
+- Region codes with non-ASCII letters (Kärnten AT-KÄ, Lower and Upper
+  Austria, Swiss districts); the school types an event is for in its
+  description.
 
 [Unreleased]: https://github.com/LM1LC3N7/gladys-vacances-scolaires-europe/commits/main

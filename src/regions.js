@@ -43,7 +43,7 @@ export function splitRegions(text) {
  * districts and towns.
  */
 export function resolveRegion(country, catalog, entry) {
-  const upper = entry.toUpperCase().replace(/\s+/g, '');
+  const upper = entry.normalize('NFC').toUpperCase().replace(/\s+/g, '');
   for (const code of [upper, `${country}-${upper}`]) {
     const hit = catalog.find((r) => r.code === code) ?? catalog.find((r) => r.iso === code);
     if (hit) return { region: hit };

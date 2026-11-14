@@ -25,7 +25,6 @@ import {
   GLADYS_RETRY_MAX,
   GLADYS_RETRY_MIN,
   HOLIDAYS_TTL,
-  MAX_HOLIDAYS_PER_REGION,
   MINUTE,
   PAUSE_MAX,
   PAUSE_MIN,
@@ -36,7 +35,7 @@ import {
 import { buildCalendar, buildEvents, problemsText, regionName } from './events.js';
 import { HttpError } from './http.js';
 import { both, t } from './i18n.js';
-import { OpenHolidaysClient, pick } from './openholidays.js';
+import { CODE, OpenHolidaysClient, pick } from './openholidays.js';
 import { resolveRegion, splitRegions } from './regions.js';
 import { FileStore } from './store.js';
 import { isDate, windowAt } from './time.js';
@@ -65,8 +64,10 @@ const validHoliday = (h) =>
   h.end >= h.start &&
   isTexts(h.names) &&
   Object.keys(h.names).length > 0 &&
-  isTexts(h.comments ?? {});
-const REGION_CODE = /^[A-Z]{2}(?:-[A-Z0-9]{1,8}){1,3}$/;
+  isTexts(h.comments ?? {}) &&
+  (h.groups === undefined ||
+    (Array.isArray(h.groups) && h.groups.every((g) => typeof g === 'string' && CODE.test(g))));
+const REGION_CODE = { test: (code) => CODE.test(code) && code.includes('-') };
 const validRegion = (r) =>
   r &&
   typeof r.code === 'string' &&
@@ -98,6 +99,9 @@ export class HolidaysApp {
     this.timers = timers;
     this.logger = logger;
     this.api = new OpenHolidaysClient({ fetch: fetchImpl, now, timers });
+    // Regions whose last answer had too many holidays (keys of readAt).
+    this.tooMany = new Set();
+    this.abort = null;
     // /data, as last read or written.
     this.data = { holidays: {}, catalogs: {}, attempts: {} };
     this.loaded = false;
@@ -130,6 +134,9 @@ export class HolidaysApp {
     if (!this.started) {
       this.started = true;
       this.gen += 1;
+      // stop() cuts the request in flight.
+      this.abort = new AbortController();
+      this.api.signal = this.abort.signal;
       this.loadData();
       this.scheduleCheck();
     }
@@ -148,6 +155,7 @@ export class HolidaysApp {
     }
     this.pendingAll = false;
     this.pendingUsers.clear();
+    this.abort?.abort();
     if (this.sleeping) {
       this.timers.clearTimeout(this.sleeping.id);
       this.sleeping.resolve();
@@ -271,7 +279,7 @@ export class HolidaysApp {
 
   /** Writes /data (only once read: an unread /data is never overwritten). */
   async persist() {
-    if (!this.loaded) return;
+    if (!this.loaded || !this.started) return;
     const nowWall = this.now();
     for (const kind of ['holidays', 'catalogs']) {
       for (const [key, entry] of Object.entries(this.data[kind])) {
@@ -340,55 +348,77 @@ export class HolidaysApp {
     const entry = this.data[kind][key];
     const nowWall = this.now();
     const age = entry ? nowWall - entry.fetchedAt : Infinity;
-    const sameWindow = !fromDate || (entry?.fromDate === fromDate && entry?.toDate === toDate);
-    const fresh = entry && age >= 0 && age < ttl && sameWindow;
+    // Fresh for a day whatever the window: at the turn of a month the window
+    // moves, the holidays read a few hours before still serve (the new last
+    // month is read with the next daily read).
+    const fresh = entry && age >= 0 && age < ttl;
     if (entry) entry.usedAt = nowWall;
     if (fresh) return entry;
-    const lastRead = this.readAt.get(`${kind}:${key}`);
-    if (lastRead !== undefined && this.mono() - lastRead < ttl && sameWindow) return entry;
+    const attemptKey = `${kind}:${key}`;
+    // A read of the same data already in flight (a click during a pass): its
+    // answer is shared.
+    if (this.inflight.has(attemptKey)) return this.inflight.get(attemptKey);
+    const lastRead = this.readAt.get(attemptKey);
+    if (lastRead !== undefined && this.mono() - lastRead < ttl) return entry;
     if (this.paused()) return entry;
-    const attempt = this.data.attempts[`${kind}:${key}`];
+    const attempt = this.data.attempts[attemptKey];
     if (Number.isFinite(attempt) && nowWall - attempt >= 0 && nowWall - attempt < ATTEMPT_GAP) {
       return entry;
     }
-    const inflightKey = `${kind}:${key}`;
-    if (!this.inflight.has(inflightKey)) {
-      this.inflight.set(
-        inflightKey,
-        this.readNow(kind, key, read, { fromDate, toDate }).finally(() =>
-          this.inflight.delete(inflightKey),
-        ),
-      );
-    }
-    return this.inflight.get(inflightKey);
+    const reading = this.readNow(kind, key, read, { fromDate, toDate }).finally(() =>
+      this.inflight.delete(attemptKey),
+    );
+    this.inflight.set(attemptKey, reading);
+    return reading;
   }
 
   async readNow(kind, key, read, { fromDate, toDate }) {
     const attemptKey = `${kind}:${key}`;
+    const gen = this.gen;
     // The attempt is in /data before the request: a restart loop never reads
     // more than once a minute. A slow volume delays the read 2 s at most.
     this.data.attempts[attemptKey] = this.now();
     await this.bounded(this.persist());
-    if (this.paused()) return this.data[kind][key];
+    if (this.paused() || !this.started || gen !== this.gen) return this.data[kind][key];
     try {
-      const items = await read();
+      let items = await read();
+      // Stopped meanwhile (the request was cut): nothing kept, nothing armed.
+      if (!this.started || gen !== this.gen) return this.data[kind][key];
+      const prev = this.data[kind][key];
       const entry = { fetchedAt: this.now(), items };
+      // A region that had holidays and now has none: the API answers `[]` for
+      // anything it does not know, so an empty answer is not trusted at once.
+      // The holidays read before are kept (and said in the status) until the
+      // third empty answer in a row, a day apart.
+      if (kind === 'holidays' && items.length === 0) {
+        const had = prev?.items?.some((h) => h.end >= fromDate);
+        const empties = (prev?.empties ?? 0) + 1;
+        if (had && empties < 3) {
+          entry.items = prev.items;
+          entry.empties = empties;
+          this.logger.warn?.(`OpenHolidays gave no holiday for ${key}: the previous ones are kept`);
+        }
+      }
       if (fromDate) Object.assign(entry, { fromDate, toDate });
       entry.usedAt = entry.fetchedAt;
       this.data[kind][key] = entry;
       this.readAt.set(attemptKey, this.mono());
+      this.tooMany.delete(attemptKey);
       this.pause = { until: 0, level: 0, reason: '' };
       if (this.timer.pause) this.timers.clearTimeout(this.timer.pause);
       this.timer.pause = null;
       this.persist();
       return entry;
     } catch (err) {
-      if (err instanceof HttpError && err.code === 'parse' && err.status === undefined) {
-        // A well-formed answer we refuse (too many entries): not the API being
-        // down, but read again only after the TTL.
+      if (!this.started || gen !== this.gen) return this.data[kind][key];
+      if (err?.tooMany) {
+        // A real answer with more holidays than a window takes: refused, read
+        // again only after the TTL, said in the status.
         this.readAt.set(attemptKey, this.mono());
+        this.tooMany.add(attemptKey);
         this.logger.warn?.(`OpenHolidays answer refused for ${key} (${err.message})`);
       } else {
+        // Down, cut, too large, not JSON, not a list: an outage, paused.
         this.failed(err);
       }
       this.persist();
@@ -404,7 +434,7 @@ export class HolidaysApp {
     return entry?.items;
   }
 
-  /** The holidays of a region over the current window, undefined when never read. */
+  /** The holidays entry of a region (`{ items, empties? }`), undefined when never read. */
   async holidays(region, fromDate, toDate) {
     const key = `${region.country}|${region.code}`;
     const entry = await this.cached(
@@ -414,7 +444,7 @@ export class HolidaysApp {
       () => this.api.schoolHolidays(region, fromDate, toDate),
       { fromDate, toDate },
     );
-    return entry?.items;
+    return entry;
   }
 
   // ---------------------------------------------------------------- the queue
@@ -629,17 +659,19 @@ export class HolidaysApp {
     for (const { region, calendar } of wanted) {
       const stored = existing.find((c) => c?.external_id === calendar.external_id);
       if (stored && stored.sync === false) continue; // the user said no
-      const holidays = await this.holidays(region, fromDate, toDate);
+      const entry = await this.holidays(region, fromDate, toDate);
       this.alive(gen);
+      const name = regionName(region, user);
+      if (this.tooMany.has(`holidays:${region.country}|${region.code}`)) {
+        problems.push({ key: 'problemTooMany', values: { user: user.selector, region: name } });
+      }
+      if (entry?.empties) {
+        problems.push({ key: 'problemEmpty', values: { user: user.selector, region: name } });
+      }
       // Never read: nothing is published (an empty window would prune nothing
       // useful, but a later read fills it).
-      if (!holidays) continue;
-      const events = buildEvents(this.gladys, user, region, holidays, fromDate, toDate);
-      const name = regionName(region, user);
-      if (events.length > MAX_HOLIDAYS_PER_REGION) {
-        problems.push({ key: 'problemTooMany', values: { user: user.selector, region: name } });
-        continue;
-      }
+      if (!entry) continue;
+      const events = buildEvents(this.gladys, user, region, entry.items, fromDate, toDate, catalog);
       const key = `${user.selector}:${calendar.external_id}`;
       const body = JSON.stringify({ window, events });
       if (this.sent.get(key) === body) continue;

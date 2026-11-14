@@ -1,0 +1,142 @@
+[
+  {
+    "id": "36ab14ad-27be-45f6-9f5e-ec47a76b04f6",
+    "startDate": "2026-11-02",
+    "endDate": "2026-11-02",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Allerseelen" },
+      { "language": "EN", "text": "All Souls' Day" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "38c3ddb0-251c-499e-b75a-aaeee7658080",
+    "startDate": "2026-12-24",
+    "endDate": "2027-01-06",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Weihnachtsferien" },
+      { "language": "EN", "text": "Christmas Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "fea5a95a-86f3-4fda-a997-167e905a412f",
+    "startDate": "2027-02-08",
+    "endDate": "2027-02-13",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Semesterferien" },
+      { "language": "EN", "text": "Semester Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [
+      { "code": "AT-KÄ", "shortName": "KÄ" },
+      { "code": "AT-TI", "shortName": "TI" },
+      { "code": "AT-BL", "shortName": "BL" },
+      { "code": "AT-VA", "shortName": "VA" },
+      { "code": "AT-SB", "shortName": "SB" }
+    ],
+    "tags": ["Provisional"]
+  },
+  {
+    "id": "cfc36b9c-a13e-42fd-a848-ccd940b54c97",
+    "startDate": "2027-03-19",
+    "endDate": "2027-03-19",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "St. Josef" },
+      { "language": "EN", "text": "Saint Joseph's Day" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [
+      { "code": "AT-KÄ", "shortName": "KÄ" },
+      { "code": "AT-TI", "shortName": "TI" },
+      { "code": "AT-VA", "shortName": "VA" },
+      { "code": "AT-SM", "shortName": "SM" }
+    ]
+  },
+  {
+    "id": "1362d499-5a0d-415b-a139-7d7b1949b408",
+    "startDate": "2027-03-20",
+    "endDate": "2027-03-29",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Osterferien" },
+      { "language": "EN", "text": "Easter Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "8cfd7234-afa1-4569-93e0-0069a03b1bc0",
+    "startDate": "2027-05-15",
+    "endDate": "2027-05-17",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Pfingstferien" },
+      { "language": "EN", "text": "Pentecost Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "0dfd134f-4394-4ba0-af7a-5c658b9599aa",
+    "startDate": "2027-07-10",
+    "endDate": "2027-09-12",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Sommerferien" },
+      { "language": "EN", "text": "Summer Holidays" }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [
+      { "code": "AT-KÄ", "shortName": "KÄ" },
+      { "code": "AT-OÖ", "shortName": "OÖ" },
+      { "code": "AT-TI", "shortName": "TI" },
+      { "code": "AT-VA", "shortName": "VA" },
+      { "code": "AT-SB", "shortName": "SB" },
+      { "code": "AT-SM", "shortName": "SM" }
+    ],
+    "tags": ["Provisional"]
+  },
+  {
+    "id": "e01b8cae-db57-4a67-9d80-d578589ab6a2",
+    "startDate": "2027-10-27",
+    "endDate": "2027-10-31",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Herbstferien" },
+      { "language": "EN", "text": "Autumn Holidays" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "42d63b0f-b1b5-468f-b142-c496a14a106f",
+    "startDate": "2027-11-02",
+    "endDate": "2027-11-02",
+    "type": "School",
+    "name": [
+      { "language": "DE", "text": "Allerseelen" },
+      { "language": "EN", "text": "All Souls' Day" }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  }
+]

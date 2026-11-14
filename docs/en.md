@@ -58,6 +58,12 @@ There is no device: the calendar is enough.
 - **Reads**: once a day at most per region (once a week for the lists of
   regions), however many restarts or clicks. The date of the data and of the
   last attempt are kept in `/data`.
+- **An empty answer** for a region that had holidays: the holidays read
+  before are kept (and said in the status) until the third empty answer in a
+  row, a day apart (the API answers "nothing" to what it does not know).
+- **Unreadable answer** (maintenance page, not a list, cut): treated as an
+  outage, paused like below. More than 500 holidays for a region: refused and
+  said in the status.
 - **API down**: every request is paused 60 s, then 2 min, 4 min… up to 6 h,
   honouring the `Retry-After` header; the holidays already read stay in the
   calendar. Answers are limited to 1 MB (2 MB for the lists of regions) and
@@ -72,7 +78,11 @@ There is no device: the calendar is enough.
   holidays: they are left out. A half day is noted in the event description.
   A holiday given once per school type (Zürich: `CH-ZH-VS` Volksschulen,
   `CH-ZH-MS` Mittelschulen…) with the same dates shows once; for
-  the dates of one school type only, give its group code.
+  the dates of one school type only, give its group code. The description
+  of an event names the school types it is for: two events of the same name
+  that overlap (Mecklenburg: "Sommerferien" for ABS and for BBS) are two
+  school types, and the scene condition "an event is running" is true on
+  both.
 - Holidays are full-day events, stored at the midnights of the Gladys
   timezone (timezones from UTC-11 to UTC+11).
 
@@ -82,12 +92,22 @@ Offered: Albania, Andorra, Austria, Belarus, Belgium, Bulgaria, Croatia,
 Czechia, Estonia, Germany, Hungary, Ireland, Italy, Latvia, Liechtenstein,
 Lithuania, Luxembourg, Malta, Moldova, Monaco, Netherlands, Poland,
 Portugal, Romania, San Marino, Serbia, Slovakia, Slovenia, Spain,
-Switzerland. The Gladys catalog shows it in 20 of them (the catalog limit);
-the search finds it everywhere.
+Switzerland.
+
+The Gladys catalog lists an integration in 20 countries at most: here the 14
+whose school holidays 2026-2027 are in the API (Andorra, Austria, Belgium,
+Czechia, Estonia, Germany, Liechtenstein, Lithuania, Luxembourg, the
+Netherlands, Poland, Portugal, Slovakia, Switzerland), then the 6 most
+populous EU members still waiting for theirs (Italy, Spain, Romania,
+Hungary, Bulgaria, Ireland). The other 10 (Albania, Belarus, Croatia,
+Latvia, Malta, Moldova, Monaco, San Marino, Serbia, Slovenia) are offered
+all the same: the catalog search finds the integration from any country.
 
 Coverage depends on the API: some countries publish their school year late
-(in November 2026, nothing yet for Spain or Italy in 2026-2027). An empty
-calendar fills as soon as the API has the dates.
+(on 14 November 2026, nothing yet for 2026-2027 in Albania, Belarus,
+Bulgaria, Croatia, Hungary, Ireland, Italy, Latvia, Malta, Moldova, Monaco,
+Romania, San Marino, Serbia, Slovenia and Spain). An empty calendar fills as
+soon as the API has the dates.
 
 ## Data and licence
 

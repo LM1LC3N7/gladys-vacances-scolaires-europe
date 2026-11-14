@@ -2,19 +2,19 @@
   {
     "name": "holidays fresh for a day",
     "file": "src/app.js",
-    "from": "const fresh = entry && age >= 0 && age < ttl && sameWindow;",
-    "to": "const fresh = entry && age >= 0 && age < 0 && sameWindow;"
+    "from": "const fresh = entry && age >= 0 && age < ttl;",
+    "to": "const fresh = entry && age >= 0 && age < 0;"
   },
   {
     "name": "future date of /data trusted",
     "file": "src/app.js",
-    "from": "const fresh = entry && age >= 0 && age < ttl && sameWindow;",
-    "to": "const fresh = entry && age < ttl && sameWindow;"
+    "from": "const fresh = entry && age >= 0 && age < ttl;",
+    "to": "const fresh = entry && age < ttl;"
   },
   {
     "name": "monotonic read guard",
     "file": "src/app.js",
-    "from": "if (lastRead !== undefined && this.mono() - lastRead < ttl && sameWindow) return entry;",
+    "from": "if (lastRead !== undefined && this.mono() - lastRead < ttl) return entry;",
     "to": "if (false) return entry;"
   },
   {
@@ -50,8 +50,8 @@
   {
     "name": "unread /data never written",
     "file": "src/app.js",
-    "from": "    if (!this.loaded) return;\n    const nowWall",
-    "to": "    const nowWall"
+    "from": "    if (!this.loaded || !this.started) return;\n    const nowWall",
+    "to": "    if (!this.started) return;\n    const nowWall"
   },
   {
     "name": "one /data read at a time",
@@ -112,12 +112,6 @@
     "file": "src/app.js",
     "from": "if (catalog.some((r) => r.top || r.group)) {",
     "to": "if (false) {"
-  },
-  {
-    "name": "window of the month checked",
-    "file": "src/app.js",
-    "from": "const sameWindow = !fromDate || (entry?.fromDate === fromDate && entry?.toDate === toDate);",
-    "to": "const sameWindow = true;"
   },
   {
     "name": "gladys retry doubled",
@@ -182,8 +176,8 @@
   {
     "name": "too many holidays refused",
     "file": "src/openholidays.js",
-    "from": "if (data.length > MAX_HOLIDAYS_PER_REGION) throw",
-    "to": "if (false) throw"
+    "from": "  if (data.length > MAX_HOLIDAYS_PER_REGION) {",
+    "to": "  if (false) {"
   },
   {
     "name": "foreign region codes dropped",
@@ -236,7 +230,133 @@
   {
     "name": "twins merged",
     "file": "src/events.js",
-    "from": "    if (seen.has(twin)) continue;\n",
-    "to": "\n"
+    "from": "    if (first) {\n",
+    "to": "    if (false) {\n"
+  },
+  {
+    "name": "twins: start",
+    "file": "src/events.js",
+    "from": "JSON.stringify([h.start, h.end, h.names, h.comments, h.halfDay])",
+    "to": "JSON.stringify([h.end, h.names, h.comments, h.halfDay])"
+  },
+  {
+    "name": "twins: names",
+    "file": "src/events.js",
+    "from": "JSON.stringify([h.start, h.end, h.names, h.comments, h.halfDay])",
+    "to": "JSON.stringify([h.start, h.end, h.comments, h.halfDay])"
+  },
+  {
+    "name": "twins: comments",
+    "file": "src/events.js",
+    "from": "JSON.stringify([h.start, h.end, h.names, h.comments, h.halfDay])",
+    "to": "JSON.stringify([h.start, h.end, h.names, h.halfDay])"
+  },
+  {
+    "name": "twins: half day",
+    "file": "src/events.js",
+    "from": "JSON.stringify([h.start, h.end, h.names, h.comments, h.halfDay])",
+    "to": "JSON.stringify([h.start, h.end, h.names, h.comments])"
+  },
+  {
+    "name": "twins: school types joined",
+    "file": "src/events.js",
+    "from": "for (const g of h.groups ?? []) if (!first.groups.includes(g)) first.groups.push(g);",
+    "to": ""
+  },
+  {
+    "name": "window: start on the last date",
+    "file": "src/events.js",
+    "from": "if (h.end < fromDate || h.start > toDate) continue;",
+    "to": "if (h.end < fromDate || h.start >= toDate) continue;"
+  },
+  {
+    "name": "non-ASCII region codes",
+    "file": "src/openholidays.js",
+    "from": "(?:-[\\p{Lu}\\p{Nd}]{1,8}){0,3}$/u;",
+    "to": "(?:-[A-Z0-9]{1,8}){0,3}$/u;"
+  },
+  {
+    "name": "long summers kept",
+    "file": "src/openholidays.js",
+    "from": "const MAX_HOLIDAY_DAYS = 200;",
+    "to": "const MAX_HOLIDAY_DAYS = 120;"
+  },
+  {
+    "name": "user entry NFC",
+    "file": "src/regions.js",
+    "from": "entry.normalize('NFC').toUpperCase()",
+    "to": "entry.toUpperCase()"
+  },
+  {
+    "name": "too many: not an outage",
+    "file": "src/app.js",
+    "from": "      if (err?.tooMany) {",
+    "to": "      if (false) {"
+  },
+  {
+    "name": "too many said",
+    "file": "src/app.js",
+    "from": "      if (this.tooMany.has(`holidays:${region.country}|${region.code}`)) {",
+    "to": "      if (false) {"
+  },
+  {
+    "name": "empty answer kept",
+    "file": "src/app.js",
+    "from": "        if (had && empties < 3) {",
+    "to": "        if (false) {"
+  },
+  {
+    "name": "empty answer accepted the third time",
+    "file": "src/app.js",
+    "from": "        if (had && empties < 3) {",
+    "to": "        if (had) {"
+  },
+  {
+    "name": "empty answer said",
+    "file": "src/app.js",
+    "from": "      if (entry?.empties) {",
+    "to": "      if (false) {"
+  },
+  {
+    "name": "stop cuts the request",
+    "file": "src/app.js",
+    "from": "    this.abort?.abort();\n",
+    "to": ""
+  },
+  {
+    "name": "nothing after stop",
+    "file": "src/app.js",
+    "from": "      if (!this.started || gen !== this.gen) return this.data[kind][key];\n      if (err?.tooMany) {",
+    "to": "      if (err?.tooMany) {"
+  },
+  {
+    "name": "in-flight read shared first",
+    "file": "src/app.js",
+    "from": "    if (this.inflight.has(attemptKey)) return this.inflight.get(attemptKey);\n",
+    "to": ""
+  },
+  {
+    "name": "odd user selector skipped",
+    "file": "src/app.js",
+    "from": "if (typeof selector !== 'string' || !USER_SELECTOR.test(selector)) continue;",
+    "to": "if (typeof selector !== 'string') continue;"
+  },
+  {
+    "name": "403 not a refusal",
+    "file": "src/app.js",
+    "from": "if (status === 403) return false;",
+    "to": "if (false) return false;"
+  },
+  {
+    "name": "English for a user without language",
+    "file": "src/events.js",
+    "from": "return /^[A-Z]{2}$/.test(lang) ? lang : 'EN';",
+    "to": "return /^[A-Z]{2}$/.test(lang) ? lang : 'DE';"
+  },
+  {
+    "name": "school types named",
+    "file": "src/events.js",
+    "from": "types ? t('schoolTypes', lang, { types }) : '',",
+    "to": "'',"
   }
 ]

@@ -58,6 +58,13 @@ Il n’y a pas d’appareil : le calendrier suffit.
   pour les listes de régions), quel que soit le nombre de redémarrages ou de
   clics. La date de la donnée et de la dernière tentative sont gardées dans
   `/data`.
+- **Réponse vide** pour une région qui avait des vacances : les vacances
+  déjà lues sont gardées (et signalées dans le statut) jusqu’à la troisième
+  réponse vide d’affilée, à un jour d’écart (l’API répond « rien » à ce
+  qu’elle ne connaît pas).
+- **Réponse illisible** (page de maintenance, pas une liste, coupée) : traitée
+  comme une panne, suspendue comme ci-dessous. Plus de 500 vacances pour une
+  région : refusées et signalées dans le statut.
 - **Panne de l’API** : toute requête est suspendue 60 s, puis 2 min,
   4 min… jusqu’à 6 h, en respectant l’en-tête `Retry-After` ; les vacances
   déjà lues restent dans le calendrier. Réponses limitées à 1 Mo (2 Mo pour
@@ -73,7 +80,11 @@ Il n’y a pas d’appareil : le calendrier suffit.
   description de l’événement. Une même période donnée une fois par type
   d’école (Zurich : `CH-ZH-VS` Volksschulen, `CH-ZH-MS` Mittelschulen…) avec
   les mêmes dates n’apparaît qu’une fois ; pour les dates d’un seul type
-  d’école, indiquez son code de groupe.
+  d’école, indiquez son code de groupe. La description d’un événement nomme
+  les types d’école concernés : deux événements de même nom qui se
+  chevauchent (Mecklembourg : « Sommerferien » pour ABS et pour BBS) sont
+  deux types d’école, et la condition de scène « un événement est en cours »
+  est vraie sur les deux.
 - Les vacances sont des événements « journée entière », rangés aux minuits
   du fuseau de Gladys (fuseaux de UTC-11 à UTC+11).
 
@@ -83,12 +94,22 @@ Proposés : Albanie, Allemagne, Andorre, Autriche, Belgique, Biélorussie,
 Bulgarie, Croatie, Espagne, Estonie, Hongrie, Irlande, Italie, Lettonie,
 Liechtenstein, Lituanie, Luxembourg, Malte, Moldavie, Monaco, Pays-Bas,
 Pologne, Portugal, Roumanie, Saint-Marin, Serbie, Slovaquie, Slovénie,
-Suisse, Tchéquie. Le catalogue de Gladys la montre dans 20 d’entre eux
-(limite du catalogue) ; la recherche la trouve partout.
+Suisse, Tchéquie.
+
+Le catalogue de Gladys range une intégration dans 20 pays au plus : ici les
+14 dont les vacances 2026-2027 sont dans l’API (Allemagne, Andorre,
+Autriche, Belgique, Estonie, Liechtenstein, Lituanie, Luxembourg, Pays-Bas,
+Pologne, Portugal, Slovaquie, Suisse, Tchéquie), puis les 6 pays de l’UE les
+plus peuplés qui attendent les leurs (Italie, Espagne, Roumanie, Hongrie,
+Bulgarie, Irlande). Les 10 autres (Albanie, Biélorussie, Croatie, Lettonie,
+Malte, Moldavie, Monaco, Saint-Marin, Serbie, Slovénie) sont proposés quand
+même : la recherche du catalogue trouve l’intégration depuis tout pays.
 
 La couverture dépend de l’API : certains pays publient leur année scolaire
-tard (en novembre 2026, rien encore pour l’Espagne ni l’Italie en 2026-2027).
-Un calendrier vide se remplit dès que l’API a les dates.
+tard (le 14 novembre 2026, rien encore pour 2026-2027 en Albanie,
+Biélorussie, Bulgarie, Croatie, Espagne, Hongrie, Irlande, Italie, Lettonie,
+Malte, Moldavie, Monaco, Roumanie, Saint-Marin, Serbie et Slovénie). Un
+calendrier vide se remplit dès que l’API a les dates.
 
 ## Données et licence
 
