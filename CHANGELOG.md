@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-14
+
 ### Added
 
 - School holidays of a region (Land, canton, community, region) in 30
@@ -24,4 +26,5 @@ the notes of the version's GitHub Release.
   Austria, Swiss districts); the school types an event is for in its
   description.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-vacances-scolaires-europe/commits/main
+[Unreleased]: https://github.com/LM1LC3N7/gladys-vacances-scolaires-europe/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/LM1LC3N7/gladys-vacances-scolaires-europe/releases/tag/v0.1.1

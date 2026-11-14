@@ -1,6 +1,6 @@
 {
   "name": "gladys-vacances-scolaires-europe",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "School holidays by region (Land, canton, community) in Europe outside France for Gladys Assistant, as calendars, from the public OpenHolidays API (data ODbL-1.0).",
   "type": "module",
