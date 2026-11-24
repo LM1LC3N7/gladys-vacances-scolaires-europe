@@ -45,7 +45,7 @@ test('a user in Bavaria: one calendar, its holidays as full-day events, the wind
   }
   assert.match(
     USER_AGENT,
-    /^gladys-vacances-scolaires-europe\/0\.1\.0 \(\+https:\/\/github\.com\/LM1LC3N7\//,
+    /^gladys-vacances-scolaires-europe\/\d+\.\d+\.\d+ \(\+https:\/\/github\.com\/LM1LC3N7\//,
   );
   assert.deepEqual(
     fake.calendars.map((c) => [c.external_id, c.name, c.color, c.user]),
